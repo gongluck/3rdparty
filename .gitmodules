@@ -7,3 +7,6 @@
 [submodule "SDL2/src"]
 	path = SDL2/src
 	url = https://github.com/libsdl-org/SDL.git
+[submodule "openh264/src"]
+	path = openh264/src
+	url = https://github.com/cisco/openh264.git
