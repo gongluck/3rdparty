@@ -10,3 +10,6 @@
 [submodule "openh264/src"]
 	path = openh264/src
 	url = https://github.com/cisco/openh264.git
+[submodule "faac/src"]
+	path = faac/src
+	url = https://github.com/knik0/faac.git
