@@ -16,3 +16,6 @@
 [submodule "faad2/src"]
 	path = faad2/src
 	url = https://github.com/knik0/faad2.git
+[submodule "fdk-aac/src"]
+	path = fdk-aac/src
+	url = https://github.com/mstorsjo/fdk-aac.git
