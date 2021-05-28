@@ -13,3 +13,6 @@
 [submodule "faac/src"]
 	path = faac/src
 	url = https://github.com/knik0/faac.git
+[submodule "faad2/src"]
+	path = faad2/src
+	url = https://github.com/knik0/faad2.git
