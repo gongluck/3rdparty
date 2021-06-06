@@ -19,3 +19,6 @@
 [submodule "fdk-aac/src"]
 	path = fdk-aac/src
 	url = https://github.com/mstorsjo/fdk-aac.git
+[submodule "libyuv/src"]
+	path = libyuv/src
+	url = https://chromium.googlesource.com/external/libyuv
