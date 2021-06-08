@@ -6,8 +6,7 @@ STRING(REGEX REPLACE ".*/(.*)" "\\1" CURRENT_FOLDER ${CMAKE_CURRENT_SOURCE_DIR})
 project(${CURRENT_FOLDER})
 
 # 包含路径
-include_directories(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/../include)
-include_directories(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/../src)
+include_directories(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/../../ffmpeg/include)
 include_directories(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/../../SDL2/include)
 
 if(WIN32)
@@ -18,7 +17,7 @@ if(CMAKE_CL_64)
 # 分别设置了Debug版本和Release版本可执行文件的输出目录(经测试,windows环境有效)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PROJECT_SOURCE_DIR}/../bin/x64)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PROJECT_SOURCE_DIR}/../bin/x64)
-link_directories(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/../lib/x64)
+link_directories(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/../../ffmpeg/lib/x64)
 link_directories(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/../../x264/lib/x64)
 link_directories(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/../../fdk-aac/lib/x64)
 link_directories(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/../../SDL2/lib/x64)
@@ -35,10 +34,9 @@ endif(CMAKE_CL_64)
 endif(WIN32)
 
 # 添加源码文件到项目
-add_executable(${PROJECT_NAME} 
-	${PROJECT_SOURCE_DIR}/../src/fftools/ffplay.c
-    ${PROJECT_SOURCE_DIR}/../src/fftools/cmdutils.c
-)
+FILE(GLOB header ./*.h)
+aux_source_directory(. SRCS)
+add_executable(${PROJECT_NAME} ${header} ${SRCS})
 
 if(WIN32)
 #windows
