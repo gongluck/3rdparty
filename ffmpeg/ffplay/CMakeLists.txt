@@ -40,11 +40,14 @@ add_executable(${PROJECT_NAME} ${header} ${SRCS})
 
 if(WIN32)
 #windows
-target_link_libraries(${PROJECT_NAME} avformat.lib avcodec.lib avutil.lib swscale.lib swresample.lib avfilter.lib avdevice.lib postproc.lib)
+#链接ffmpeg静态库
+#target_link_libraries(${PROJECT_NAME} avformat.lib avcodec.lib avutil.lib swscale.lib swresample.lib avfilter.lib avdevice.lib postproc.lib)
 #静态库补充依赖
-target_link_libraries(${PROJECT_NAME} libx264.lib fdk-aac.lib)
-target_link_libraries(${PROJECT_NAME} Ws2_32.lib Secur32.lib Mfuuid.lib Mfplat.lib Strmiids.lib Bcrypt.lib Shlwapi.lib Vfw32.lib)
-#target_link_libraries(${PROJECT_NAME} SDL2.lib)
+#target_link_libraries(${PROJECT_NAME} libx264.lib fdk-aac.lib)
+#target_link_libraries(${PROJECT_NAME} Ws2_32.lib Secur32.lib Mfuuid.lib Mfplat.lib Strmiids.lib Bcrypt.lib Shlwapi.lib Vfw32.lib)
+#链接ffmpeg动态库
+target_link_libraries(${PROJECT_NAME} avformat.dll.lib avcodec.dll.lib avutil.dll.lib swscale.dll.lib swresample.dll.lib avfilter.dll.lib avdevice.dll.lib postproc.dll.lib)
+#链接SDL2静态库
 target_link_libraries(${PROJECT_NAME} SDL2-static.lib "winmm.lib" "version.lib" "Imm32.lib" "Setupapi.lib")
 endif(WIN32)
 
