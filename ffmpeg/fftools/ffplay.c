@@ -334,21 +334,21 @@ static int screen_height = 0;
 static int screen_left = SDL_WINDOWPOS_CENTERED;
 static int screen_top = SDL_WINDOWPOS_CENTERED;
 static int audio_disable; //-an 指定不播放音频
-static int video_disable;
-static int subtitle_disable;
-static const char *wanted_stream_spec[AVMEDIA_TYPE_NB] = {0};
-static int seek_by_bytes = -1;
+static int video_disable; //-vn 不播放视频
+static int subtitle_disable; //-sn 不播放字幕
+static const char *wanted_stream_spec[AVMEDIA_TYPE_NB] = {0}; //-ast -vst -sst 指定流
+static int seek_by_bytes = -1; //按字节偏移 0=off 1=on -1=auto
 static float seek_interval = 10;
 static int display_disable;		 //-vn或者-nodisp 指定不显示窗口
 static int borderless;			 //-noborder 指定无边框
 static int alwaysontop;			 //-alwaysontop 指定总显示在z轴顶部
 static int startup_volume = 100; //-volume n 指定音量
-static int show_status = -1;
+static int show_status = -1; //-stats 显示状态
 static int av_sync_type = AV_SYNC_AUDIO_MASTER; //-sync 指定时钟同步类型(audio/video/ext)
-static int64_t start_time = AV_NOPTS_VALUE;
+static int64_t start_time = AV_NOPTS_VALUE; //-ss 开始时间(s)
 static int64_t duration = AV_NOPTS_VALUE;
 static int fast = 0;
-static int genpts = 0;
+static int genpts = 0; //-genpts 要求自动递增类的生成pts
 static int lowres = 0;
 static int decoder_reorder_pts = -1;
 static int autoexit;
@@ -356,8 +356,8 @@ static int exit_on_keydown;
 static int exit_on_mousedown;
 static int loop = 1;
 static int framedrop = -1;
-static int infinite_buffer = -1;
-static enum ShowMode show_mode = SHOW_MODE_NONE;
+static int infinite_buffer = -1; //-infbuf 不限制输入缓冲区大小
+static enum ShowMode show_mode = SHOW_MODE_NONE;//-showmode 显示模式 0 = video, 1 = waves, 2 = RDFT
 static const char *audio_codec_name;
 static const char *subtitle_codec_name;
 static const char *video_codec_name;
@@ -370,7 +370,7 @@ static int nb_vfilters = 0;
 static char *afilters = NULL;
 #endif
 static int autorotate = 1;
-static int find_stream_info = 1;
+static int find_stream_info = 1; //-find_stream_info 查找流信息
 static int filter_nbthreads = 0;
 
 /* current context */
@@ -3071,8 +3071,9 @@ static int read_thread(void *arg)
 	is->ic = ic;
 
 	if (genpts)
-		ic->flags |= AVFMT_FLAG_GENPTS;
+		ic->flags |= AVFMT_FLAG_GENPTS;//要求自动递增类的生成pts
 
+	//这个函数将导致全局端数据被注入到每个流的下一个包中，以及在任何后续的seek之后。
 	av_format_inject_global_side_data(ic);
 
 	if (find_stream_info)
@@ -3080,6 +3081,7 @@ static int read_thread(void *arg)
 		AVDictionary **opts = setup_find_stream_info_opts(ic, codec_opts);
 		int orig_nb_streams = ic->nb_streams;
 
+		//探测媒体类型，可得到当前文件的封装格式，音视频编码参数等信息
 		err = avformat_find_stream_info(ic, opts);
 
 		for (i = 0; i < orig_nb_streams; i++)
@@ -3099,6 +3101,7 @@ static int read_thread(void *arg)
 		ic->pb->eof_reached = 0; // FIXME hack, ffplay maybe should not use avio_feof() to test for the end
 
 	if (seek_by_bytes < 0)
+		//AVFMT_TS_DISCONT 格式允许时间戳间断
 		seek_by_bytes = !!(ic->iformat->flags & AVFMT_TS_DISCONT) && strcmp("ogg", ic->iformat->name);
 
 	is->max_frame_duration = (ic->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0;
@@ -3132,7 +3135,7 @@ static int read_thread(void *arg)
 	{
 		AVStream *st = ic->streams[i];
 		enum AVMediaType type = st->codecpar->codec_type;
-		st->discard = AVDISCARD_ALL;
+		st->discard = AVDISCARD_ALL;//选择哪些包可以随意丢弃
 		if (type >= 0 && wanted_stream_spec[type] && st_index[type] == -1)
 			if (avformat_match_stream_specifier(ic, st, wanted_stream_spec[type]) > 0)
 				st_index[type] = i;
