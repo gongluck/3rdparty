@@ -528,7 +528,7 @@ static void packet_queue_flush(PacketQueue *q)
 	q->nb_packets = 0;
 	q->size = 0;
 	q->duration = 0;
-	q->serial++;
+	q->serial++;//下一个序列号
 	SDL_UnlockMutex(q->mutex);
 }
 
@@ -850,7 +850,9 @@ static void frame_queue_next(FrameQueue *f)
 {
 	if (f->keep_last && !f->rindex_shown)
 	{
-		f->rindex_shown = 1;
+		//在启用keeplast时，如果rindex_shown为0则将其设置为1，并返回。
+		//此时并不会更新读索引。也就是说keeplast机制实质上也会占用着队列Frame的size，当调用frame_queue_nb_remaining()获取size时并不能将其计算入size
+		f->rindex_shown = 1;//第一次调用置为1
 		return;
 	}
 	frame_queue_unref_item(&f->queue[f->rindex]);
@@ -1935,6 +1937,7 @@ static int queue_picture(VideoState *is, AVFrame *src_frame, double pts, double 
 	//为避免内存泄漏，在av_frame_move_ref(vp->frame, src_frame)之前应先调用av_frame_unref(dst)
 	//这里没有调用，是因为frame_queue在删除一个节点时，已经释放了frame及frame中的AVBuffer
 	av_frame_move_ref(vp->frame, src_frame);
+	//更新写索引位置
 	frame_queue_push(&is->pictq);
 	return 0;
 }
