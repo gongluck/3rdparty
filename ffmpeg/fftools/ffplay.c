@@ -350,12 +350,12 @@ static int64_t duration = AV_NOPTS_VALUE;		//-t 持续时间
 static int fast = 0;
 static int genpts = 0; //-genpts 要求自动递增类的生成pts
 static int lowres = 0;
-static int decoder_reorder_pts = -1;
+static int decoder_reorder_pts = -1; //-drp 让ffmpeg排序pts 0=off 1=on -1=auto
 static int autoexit;
 static int exit_on_keydown;
 static int exit_on_mousedown;
 static int loop = 1;
-static int framedrop = -1;
+static int framedrop = -1;						 //-framedrop 允许丢帧
 static int infinite_buffer = -1;				 //-infbuf 不限制输入缓冲区大小
 static enum ShowMode show_mode = SHOW_MODE_NONE; //-showmode 显示模式 0 = video, 1 = waves, 2 = RDFT
 static const char *audio_codec_name;			 //-acodec 指定解码器
@@ -664,13 +664,13 @@ static int decoder_decode_frame(Decoder *d, AVFrame *frame, AVSubtitle *sub)
 				}
 				if (ret == AVERROR_EOF)
 				{
-					d->finished = d->pkt_serial;
+					d->finished = d->pkt_serial; //当前序列解码完毕
 					avcodec_flush_buffers(d->avctx);
 					return 0;
 				}
-				if (ret >= 0)
+				if (ret >= 0) //获取解码帧返回
 					return 1;
-			} while (ret != AVERROR(EAGAIN));
+			} while (ret != AVERROR(EAGAIN)); //跳出此循环，下面推送编码包
 		}
 
 		do
@@ -686,7 +686,7 @@ static int decoder_decode_frame(Decoder *d, AVFrame *frame, AVSubtitle *sub)
 				int old_serial = d->pkt_serial;
 				if (packet_queue_get(d->queue, d->pkt, 1, &d->pkt_serial) < 0)
 					return -1;
-				if (old_serial != d->pkt_serial)
+				if (old_serial != d->pkt_serial) //新序列
 				{
 					avcodec_flush_buffers(d->avctx);
 					d->finished = 0;
@@ -719,7 +719,7 @@ static int decoder_decode_frame(Decoder *d, AVFrame *frame, AVSubtitle *sub)
 		}
 		else
 		{
-			if (avcodec_send_packet(d->avctx, d->pkt) == AVERROR(EAGAIN))
+			if (avcodec_send_packet(d->avctx, d->pkt) == AVERROR(EAGAIN)) //要继续调⽤avcodec_receive_frame()将frame读取，再调⽤avcodec_send_packet发packet
 			{
 				av_log(d->avctx, AV_LOG_ERROR, "Receive_frame and send_packet both returned EAGAIN, which is an API violation.\n");
 				d->packet_pending = 1;
@@ -1958,6 +1958,7 @@ static int get_video_frame(VideoState *is, AVFrame *frame)
 
 		frame->sample_aspect_ratio = av_guess_sample_aspect_ratio(is->ic, is->video_st, frame);
 
+		//丢帧处理
 		if (framedrop > 0 || (framedrop && get_master_sync_type(is) != AV_SYNC_VIDEO_MASTER))
 		{
 			if (frame->pts != AV_NOPTS_VALUE)
