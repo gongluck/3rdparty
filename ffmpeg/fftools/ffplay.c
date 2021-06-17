@@ -201,7 +201,7 @@ typedef struct Decoder
 	PacketQueue *queue;	   //编码包队列
 	AVCodecContext *avctx; //解码器上下文
 	int pkt_serial;		   //序列号
-	int finished;		   //解码空闲状态
+	int finished;		   //解码结束序列
 	int packet_pending;	   //异常状态
 	SDL_cond *empty_queue_cond;
 	int64_t start_pts;		 //开始时间
@@ -333,20 +333,20 @@ static int screen_width = 0;
 static int screen_height = 0;
 static int screen_left = SDL_WINDOWPOS_CENTERED;
 static int screen_top = SDL_WINDOWPOS_CENTERED;
-static int audio_disable; //-an 指定不播放音频
-static int video_disable; //-vn 不播放视频
-static int subtitle_disable; //-sn 不播放字幕
+static int audio_disable;									  //-an 指定不播放音频
+static int video_disable;									  //-vn 不播放视频
+static int subtitle_disable;								  //-sn 不播放字幕
 static const char *wanted_stream_spec[AVMEDIA_TYPE_NB] = {0}; //-ast -vst -sst 指定流
-static int seek_by_bytes = -1; //按字节偏移 0=off 1=on -1=auto
+static int seek_by_bytes = -1;								  //按字节偏移 0=off 1=on -1=auto
 static float seek_interval = 10;
-static int display_disable;		 //-vn或者-nodisp 指定不显示窗口
-static int borderless;			 //-noborder 指定无边框
-static int alwaysontop;			 //-alwaysontop 指定总显示在z轴顶部
-static int startup_volume = 100; //-volume n 指定音量
-static int show_status = -1; //-stats 显示状态
+static int display_disable;						//-vn或者-nodisp 指定不显示窗口
+static int borderless;							//-noborder 指定无边框
+static int alwaysontop;							//-alwaysontop 指定总显示在z轴顶部
+static int startup_volume = 100;				//-volume n 指定音量
+static int show_status = -1;					//-stats 显示状态
 static int av_sync_type = AV_SYNC_AUDIO_MASTER; //-sync 指定时钟同步类型(audio/video/ext)
-static int64_t start_time = AV_NOPTS_VALUE; //-ss 开始时间(s)
-static int64_t duration = AV_NOPTS_VALUE;
+static int64_t start_time = AV_NOPTS_VALUE;		//-ss 开始时间(s)
+static int64_t duration = AV_NOPTS_VALUE;		//-t 持续时间
 static int fast = 0;
 static int genpts = 0; //-genpts 要求自动递增类的生成pts
 static int lowres = 0;
@@ -356,11 +356,11 @@ static int exit_on_keydown;
 static int exit_on_mousedown;
 static int loop = 1;
 static int framedrop = -1;
-static int infinite_buffer = -1; //-infbuf 不限制输入缓冲区大小
-static enum ShowMode show_mode = SHOW_MODE_NONE;//-showmode 显示模式 0 = video, 1 = waves, 2 = RDFT
-static const char *audio_codec_name;
-static const char *subtitle_codec_name;
-static const char *video_codec_name;
+static int infinite_buffer = -1;				 //-infbuf 不限制输入缓冲区大小
+static enum ShowMode show_mode = SHOW_MODE_NONE; //-showmode 显示模式 0 = video, 1 = waves, 2 = RDFT
+static const char *audio_codec_name;			 //-acodec 指定解码器
+static const char *subtitle_codec_name;			 //-scodec 指定解码器
+static const char *video_codec_name;			 //-vcodec 指定解码器
 double rdftspeed = 0.02;
 static int64_t cursor_last_shown;
 static int cursor_hidden = 0;
@@ -528,7 +528,7 @@ static void packet_queue_flush(PacketQueue *q)
 	q->nb_packets = 0;
 	q->size = 0;
 	q->duration = 0;
-	q->serial++;//下一个序列号
+	q->serial++; //下一个序列号
 	SDL_UnlockMutex(q->mutex);
 }
 
@@ -852,7 +852,7 @@ static void frame_queue_next(FrameQueue *f)
 	{
 		//在启用keeplast时，如果rindex_shown为0则将其设置为1，并返回。
 		//此时并不会更新读索引。也就是说keeplast机制实质上也会占用着队列Frame的size，当调用frame_queue_nb_remaining()获取size时并不能将其计算入size
-		f->rindex_shown = 1;//第一次调用置为1
+		f->rindex_shown = 1; //第一次调用置为1
 		return;
 	}
 	frame_queue_unref_item(&f->queue[f->rindex]);
@@ -2832,6 +2832,7 @@ static int stream_component_open(VideoState *is, int stream_index)
 	if (!avctx)
 		return AVERROR(ENOMEM);
 
+	//将码流中的编解码器信息拷⻉到新分配的编解码器上下⽂结构体
 	ret = avcodec_parameters_to_context(avctx, ic->streams[stream_index]->codecpar);
 	if (ret < 0)
 		goto fail;
@@ -2959,7 +2960,7 @@ static int stream_component_open(VideoState *is, int stream_index)
 			goto fail;
 		if ((ret = decoder_start(&is->viddec, video_thread, "video_decoder", is)) < 0)
 			goto out;
-		is->queue_attachments_req = 1;
+		is->queue_attachments_req = 1; //请求mp3、aac等⾳频⽂件的封⾯
 		break;
 	case AVMEDIA_TYPE_SUBTITLE:
 		is->subtitle_stream = stream_index;
@@ -2986,15 +2987,17 @@ out:
 static int decode_interrupt_cb(void *ctx)
 {
 	VideoState *is = ctx;
+	//回调函数中返回1则代表ffmpeg结束耗时操作退出当前函数的调⽤
+	//回调函数中返回0则代表ffmpeg内部继续执⾏耗时操作，直到完成既定的任务(⽐如读取到既定的数据包)
 	return is->abort_request;
 }
 
 static int stream_has_enough_packets(AVStream *st, int stream_id, PacketQueue *queue)
 {
-	return stream_id < 0 ||
-		   queue->abort_request ||
-		   (st->disposition & AV_DISPOSITION_ATTACHED_PIC) ||
-		   queue->nb_packets > MIN_FRAMES && (!queue->duration || av_q2d(st->time_base) * queue->duration > 1.0);
+	return stream_id < 0 ||																						  //流没有打开
+		   queue->abort_request ||																				  //退出播放
+		   (st->disposition & AV_DISPOSITION_ATTACHED_PIC) ||													  //专辑封面
+		   queue->nb_packets > MIN_FRAMES && (!queue->duration || av_q2d(st->time_base) * queue->duration > 1.0); //packet队列内包个数⼤于MIN_FRAMES(>25)，并满⾜PacketQueue总时⻓为0或总时⻓超过1s
 }
 
 static int is_realtime(AVFormatContext *s)
@@ -3051,6 +3054,7 @@ static int read_thread(void *arg)
 	ic->interrupt_callback.opaque = is;
 	if (!av_dict_get(format_opts, "scan_all_pmts", NULL, AV_DICT_MATCH_CASE))
 	{
+		//scan_all_pmts是mpegts的⼀个选项，表示扫描全部的ts流的"Program Map Table"表
 		av_dict_set(&format_opts, "scan_all_pmts", "1", AV_DICT_DONT_OVERWRITE);
 		scan_all_pmts_set = 1;
 	}
@@ -3074,7 +3078,7 @@ static int read_thread(void *arg)
 	is->ic = ic;
 
 	if (genpts)
-		ic->flags |= AVFMT_FLAG_GENPTS;//要求自动递增类的生成pts
+		ic->flags |= AVFMT_FLAG_GENPTS; //要求自动递增类的生成pts
 
 	//这个函数将导致全局端数据被注入到每个流的下一个包中，以及在任何后续的seek之后。
 	av_format_inject_global_side_data(ic);
@@ -3121,6 +3125,7 @@ static int read_thread(void *arg)
 		/* add the stream start time */
 		if (ic->start_time != AV_NOPTS_VALUE)
 			timestamp += ic->start_time;
+		//时基AV_TIME_BASE_Q us
 		ret = avformat_seek_file(ic, -1, INT64_MIN, timestamp, INT64_MAX, 0);
 		if (ret < 0)
 		{
@@ -3138,7 +3143,7 @@ static int read_thread(void *arg)
 	{
 		AVStream *st = ic->streams[i];
 		enum AVMediaType type = st->codecpar->codec_type;
-		st->discard = AVDISCARD_ALL;//选择哪些包可以随意丢弃
+		st->discard = AVDISCARD_ALL; //选择哪些包可以随意丢弃
 		if (type >= 0 && wanted_stream_spec[type] && st_index[type] == -1)
 			if (avformat_match_stream_specifier(ic, st, wanted_stream_spec[type]) > 0)
 				st_index[type] = i;
@@ -3174,6 +3179,10 @@ static int read_thread(void *arg)
 	{
 		AVStream *st = ic->streams[st_index[AVMEDIA_TYPE_VIDEO]];
 		AVCodecParameters *codecpar = st->codecpar;
+		//由于帧宽⾼⽐由解码器设置，但流宽⾼⽐由解复⽤器设置，因此这两者可能不相等。
+		//此函数会尝试返回待显示帧应当使⽤的宽⾼⽐值。
+		//基本逻辑是优先使⽤流宽⾼⽐(前提是值是合理的)，其次使⽤帧宽⾼⽐。
+		//这样，流宽⾼⽐(容器设置，易于修改)可以覆盖帧宽⾼⽐。
 		AVRational sar = av_guess_sample_aspect_ratio(ic, st, NULL);
 		if (codecpar->width)
 			set_default_window_size(codecpar->width, codecpar->height, sar);
@@ -3218,9 +3227,9 @@ static int read_thread(void *arg)
 		{
 			is->last_paused = is->paused;
 			if (is->paused)
-				is->read_pause_return = av_read_pause(ic);
+				is->read_pause_return = av_read_pause(ic); //发送网络协议的暂停信令
 			else
-				av_read_play(ic);
+				av_read_play(ic); //发送网络协议的播放信令
 		}
 #if CONFIG_RTSP_DEMUXER || CONFIG_MMSH_PROTOCOL
 		if (is->paused &&
@@ -3233,7 +3242,7 @@ static int read_thread(void *arg)
 			continue;
 		}
 #endif
-		if (is->seek_req)
+		if (is->seek_req) //seek请求
 		{
 			int64_t seek_target = is->seek_pos;
 			int64_t seek_min = is->seek_rel > 0 ? seek_target - is->seek_rel + 2 : INT64_MIN;
@@ -3270,13 +3279,15 @@ static int read_thread(void *arg)
 			if (is->paused)
 				step_to_next_frame(is);
 		}
-		if (is->queue_attachments_req)
+		if (is->queue_attachments_req) //⼀些MP3，AAC⾳频⽂件附带的专辑封⾯
 		{
 			if (is->video_st && is->video_st->disposition & AV_DISPOSITION_ATTACHED_PIC)
 			{
 				if ((ret = av_packet_ref(pkt, &is->video_st->attached_pic)) < 0)
 					goto fail;
+				//在当前序列中插入包，pkt数据在内部已经被移动引用
 				packet_queue_put(&is->videoq, pkt);
+				//此时pkt数据已经为空，插入空包使序列号递增
 				packet_queue_put_nullpacket(&is->videoq, pkt, is->video_stream);
 			}
 			is->queue_attachments_req = 0;
@@ -3294,8 +3305,10 @@ static int read_thread(void *arg)
 			SDL_UnlockMutex(wait_mutex);
 			continue;
 		}
-		if (!is->paused &&
-			(!is->audio_st || (is->auddec.finished == is->audioq.serial && frame_queue_nb_remaining(&is->sampq) == 0)) &&
+		if (!is->paused &&									 //非暂停
+			(!is->audio_st ||								 //流没有打开
+			 (is->auddec.finished == is->audioq.serial &&	 //编码包解码完成
+			  frame_queue_nb_remaining(&is->sampq) == 0)) && //解码包渲染完成
 			(!is->video_st || (is->viddec.finished == is->videoq.serial && frame_queue_nb_remaining(&is->pictq) == 0)))
 		{
 			if (loop != 1 && (!loop || --loop))
