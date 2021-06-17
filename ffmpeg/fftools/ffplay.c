@@ -2722,6 +2722,7 @@ static void sdl_audio_callback(void *opaque, Uint8 *stream, int len)
 	}
 	is->audio_write_buf_size = is->audio_buf_size - is->audio_buf_index;
 	/* Let's assume the audio driver that is used by SDL has two periods. */
+	/* **SDL正在播放缓冲(is->audio_hw_buf_size)(本回调起点audio_callback_time)** **SDL回调复制缓冲(is->audio_hw_buf_size)** **数据剩余(is->audio_write_buf_size)** */
 	if (!isnan(is->audio_clock))
 	{
 		set_clock_at(&is->audclk, is->audio_clock - (double)(2 * is->audio_hw_buf_size + is->audio_write_buf_size) / is->audio_tgt.bytes_per_sec, is->audio_clock_serial, audio_callback_time / 1000000.0);
@@ -2738,7 +2739,7 @@ static int audio_open(void *opaque, int64_t wanted_channel_layout, int wanted_nb
 	int next_sample_rate_idx = FF_ARRAY_ELEMS(next_sample_rates) - 1;
 
 	env = SDL_getenv("SDL_AUDIO_CHANNELS");
-	if (env)
+	if (env)//若环境变量有设置，优先从环境变量取得声道数和声道布局
 	{
 		wanted_nb_channels = atoi(env);
 		wanted_channel_layout = av_get_default_channel_layout(wanted_nb_channels);
@@ -2756,6 +2757,7 @@ static int audio_open(void *opaque, int64_t wanted_channel_layout, int wanted_nb
 		av_log(NULL, AV_LOG_ERROR, "Invalid sample rate or channel count!\n");
 		return -1;
 	}
+	//从采样率数组中找到第一个不大于传入参数wanted_sample_rate的值
 	while (next_sample_rate_idx && next_sample_rates[next_sample_rate_idx] >= wanted_spec.freq)
 		next_sample_rate_idx--;
 	wanted_spec.format = AUDIO_S16SYS;
