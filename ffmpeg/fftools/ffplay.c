@@ -933,13 +933,16 @@ static void calculate_display_rect(SDL_Rect *rect,
 	AVRational aspect_ratio = pic_sar;
 	int64_t width, height, x, y;
 
+	//如果aspect_ratio是负数或者为0, 设置为1:1
 	if (av_cmp_q(aspect_ratio, av_make_q(0, 1)) <= 0)
 		aspect_ratio = av_make_q(1, 1);
 
 	aspect_ratio = av_mul_q(aspect_ratio, av_make_q(pic_width, pic_height));
 
 	/* XXX: we suppose the screen has a 1.0 pixel ratio */
+	//先以高度为基准
 	height = scr_height;
+	//&~1, 取偶数宽度
 	width = av_rescale(height, aspect_ratio.num, aspect_ratio.den) & ~1;
 	if (width > scr_width)
 	{
@@ -1062,6 +1065,7 @@ static void video_image_display(VideoState *is)
 	Frame *sp = NULL;
 	SDL_Rect rect;
 
+	//取要显示的视频帧
 	vp = frame_queue_peek_last(&is->pictq);
 	if (is->subtitle_st)
 	{
@@ -3573,6 +3577,7 @@ static void toggle_audio_display(VideoState *is)
 static void refresh_loop_wait_event(VideoState *is, SDL_Event *event)
 {
 	double remaining_time = 0.0;
+	//将输入设备的事件抽到事件队列中
 	SDL_PumpEvents();
 	while (!SDL_PeepEvents(event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT))
 	{
