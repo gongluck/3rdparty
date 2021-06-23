@@ -1684,6 +1684,9 @@ static double compute_target_delay(double delay, VideoState *is)
 		/* skip or repeat frame. We take into account the
 		   delay to compute the threshold. I still don't know
 		   if it is the best guess */
+		//delay > AV_SYNC_THRESHOLD_MAX = 0.1秒，则sync_threshold = 0.1秒
+		//delay < AV_SYNC_THRESHOLD_MIN = 0.04秒，则sync_threshold = 0.04秒
+		//AV_SYNC_THRESHOLD_MIN = 0.0.4秒 <= delay <= AV_SYNC_THRESHOLD_MAX = 0.1秒，则sync_threshold为delay本身
 		sync_threshold = FFMAX(AV_SYNC_THRESHOLD_MIN, FFMIN(AV_SYNC_THRESHOLD_MAX, delay));
 		if (!isnan(diff) && fabs(diff) < is->max_frame_duration)
 		{
@@ -2591,6 +2594,7 @@ static int audio_decode_frame(VideoState *is)
 
 	dec_channel_layout =
 		(af->frame->channel_layout && af->frame->channels == av_get_channel_layout_nb_channels(af->frame->channel_layout)) ? af->frame->channel_layout : av_get_default_channel_layout(af->frame->channels);
+	//根据与vidoe clock的差值，计算应该输出的样本数
 	wanted_nb_samples = synchronize_audio(is, af->frame->nb_samples);
 
 	if (af->frame->format != is->audio_src.fmt ||
@@ -2632,8 +2636,8 @@ static int audio_decode_frame(VideoState *is)
 		}
 		if (wanted_nb_samples != af->frame->nb_samples)
 		{
-			if (swr_set_compensation(is->swr_ctx, (wanted_nb_samples - af->frame->nb_samples) * is->audio_tgt.freq / af->frame->sample_rate,
-									 wanted_nb_samples * is->audio_tgt.freq / af->frame->sample_rate) < 0)
+			if (swr_set_compensation(is->swr_ctx, (wanted_nb_samples - af->frame->nb_samples) * is->audio_tgt.freq / af->frame->sample_rate,//每个样本PTS的delta
+									 wanted_nb_samples * is->audio_tgt.freq / af->frame->sample_rate/*要补偿的样品数量*/) < 0)
 			{
 				av_log(NULL, AV_LOG_ERROR, "swr_set_compensation() failed\n");
 				return -1;
