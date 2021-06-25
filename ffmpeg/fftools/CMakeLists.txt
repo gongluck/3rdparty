@@ -31,13 +31,15 @@ endif(WIN32)
 
 # 添加源码文件到项目
 add_executable(${subject} 
+${PROJECT_SOURCE_DIR}/cmdutils.h
+${PROJECT_SOURCE_DIR}/cmdutils.c
+${PROJECT_SOURCE_DIR}/ffmpeg.h
 ${PROJECT_SOURCE_DIR}/ffmpeg.c
 ${PROJECT_SOURCE_DIR}/ffmpeg_filter.c
 ${PROJECT_SOURCE_DIR}/ffmpeg_hw.c
 ${PROJECT_SOURCE_DIR}/ffmpeg_opt.c
 #${PROJECT_SOURCE_DIR}/ffmpeg_qsv.c
 #${PROJECT_SOURCE_DIR}/ffmpeg_videotoolbox.c
-${PROJECT_SOURCE_DIR}/cmdutils.c
 )
 
 if(WIN32)
@@ -74,9 +76,10 @@ endif(CMAKE_CL_64)
 endif(WIN32)
 
 # 添加源码文件到项目
-add_executable(${subject} 
-${PROJECT_SOURCE_DIR}/ffprobe.c
+add_executable(${subject}
+${PROJECT_SOURCE_DIR}/cmdutils.h
 ${PROJECT_SOURCE_DIR}/cmdutils.c
+${PROJECT_SOURCE_DIR}/ffprobe.c
 )
 
 if(WIN32)
@@ -121,9 +124,10 @@ endif(CMAKE_CL_64)
 endif(WIN32)
 
 # 添加源码文件到项目
-add_executable(${subject} 
-${PROJECT_SOURCE_DIR}/ffplay.c
+add_executable(${subject}
+${PROJECT_SOURCE_DIR}/cmdutils.h
 ${PROJECT_SOURCE_DIR}/cmdutils.c
+${PROJECT_SOURCE_DIR}/ffplay.c
 )
 
 if(WIN32)

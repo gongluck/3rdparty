@@ -4980,6 +4980,7 @@ int main(int argc, char **argv)
     show_banner(argc, argv, options);
 
     /* parse options and open all input/output files */
+    //½âÎöÃüÁîĞĞ
     ret = ffmpeg_parse_options(argc, argv);
     if (ret < 0)
         exit_program(1);
