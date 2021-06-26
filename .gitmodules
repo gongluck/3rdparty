@@ -22,3 +22,6 @@
 [submodule "libyuv/src"]
 	path = libyuv/src
 	url = https://chromium.googlesource.com/external/libyuv
+[submodule "srs/src"]
+	path = srs/src
+	url = https://github.com/ossrs/srs
