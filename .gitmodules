@@ -25,3 +25,6 @@
 [submodule "srs/src"]
 	path = srs/src
 	url = https://github.com/ossrs/srs
+[submodule "rtmpdump/src"]
+	path = rtmpdump/src
+	url = git://git.ffmpeg.org/rtmpdump
