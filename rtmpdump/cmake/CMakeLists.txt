@@ -35,7 +35,7 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/../src/librtmp SRCS)
 add_library(${subject} STATIC ${SRCS})
 
 if(WIN32)
-target_link_libraries(${subject} "WS2_32" "winmm")
+target_link_libraries(${subject})
 endif(WIN32)
 
 set_property(TARGET ${subject} PROPERTY DEBUG_POSTFIX _d)
@@ -69,7 +69,7 @@ ${PROJECT_SOURCE_DIR}/../cmake/getopt.c
 )
 
 if(WIN32)
-target_link_libraries(${subject} librtmp)
+target_link_libraries(${subject} librtmp "WS2_32" "winmm")
 endif(WIN32)
 
 set_property(TARGET ${subject} PROPERTY DEBUG_POSTFIX _d)
@@ -104,7 +104,7 @@ ${PROJECT_SOURCE_DIR}/../cmake/getopt.c
 )
 
 if(WIN32)
-target_link_libraries(${subject} librtmp)
+target_link_libraries(${subject} librtmp "WS2_32" "winmm")
 endif(WIN32)
 
 set_property(TARGET ${subject} PROPERTY DEBUG_POSTFIX _d)
@@ -140,7 +140,7 @@ ${PROJECT_SOURCE_DIR}/../cmake/getopt.c
 )
 
 if(WIN32)
-target_link_libraries(${subject} librtmp)
+target_link_libraries(${subject} librtmp "WS2_32" "winmm")
 endif(WIN32)
 
 set_property(TARGET ${subject} PROPERTY DEBUG_POSTFIX _d)
