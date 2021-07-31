@@ -28,3 +28,6 @@
 [submodule "rtmpdump/src"]
 	path = rtmpdump/src
 	url = git://git.ffmpeg.org/rtmpdump
+[submodule "ZLMediaKit/src"]
+	path = ZLMediaKit/src
+	url = https://github.com/ZLMediaKit/ZLMediaKit.git
