@@ -31,3 +31,6 @@
 [submodule "ZLMediaKit/src"]
 	path = ZLMediaKit/src
 	url = https://github.com/ZLMediaKit/ZLMediaKit.git
+[submodule "libwebp/src"]
+	path = libwebp/src
+	url = https://github.com/webmproject/libwebp.git
