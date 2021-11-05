@@ -34,3 +34,6 @@
 [submodule "libwebp/src"]
 	path = libwebp/src
 	url = https://github.com/webmproject/libwebp.git
+[submodule "libde265/src"]
+	path = libde265/src
+	url = git@github.com:gongluck/libde265.git
