@@ -36,7 +36,7 @@
 	url = https://github.com/webmproject/libwebp.git
 [submodule "libde265/src"]
 	path = libde265/src
-	url = git@github.com:gongluck/libde265.git
+	url = https://github.com/gongluck/libde265.git
 [submodule "x265/src"]
 	path = x265/src
 	url = https://github.com/gongluck/x265.git
