@@ -40,3 +40,6 @@
 [submodule "x265/src"]
 	path = x265/src
 	url = https://github.com/gongluck/x265.git
+[submodule "coturn/src"]
+	path = coturn/src
+	url = https://github.com/coturn/coturn
