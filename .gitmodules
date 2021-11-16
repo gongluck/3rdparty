@@ -43,3 +43,6 @@
 [submodule "coturn/src"]
 	path = coturn/src
 	url = https://github.com/coturn/coturn
+[submodule "apprtc/src"]
+	path = apprtc/src
+	url = https://github.com/webrtc/apprtc.git
