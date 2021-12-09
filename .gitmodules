@@ -46,3 +46,6 @@
 [submodule "apprtc/src"]
 	path = apprtc/src
 	url = https://github.com/webrtc/apprtc.git
+[submodule "webrtc/src"]
+	path = webrtc/src
+	url = https://webrtc.googlesource.com/src
