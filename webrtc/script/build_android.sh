@@ -2,6 +2,9 @@
 #export ALL_PROXY="127.0.0.1:15732"
 #建议在香港云服务器上编译！
 
+#环境升级
+#参考https://blog.csdn.net/lee890801/article/details/121540167，升级python3到3.8以上！！
+
 mkdir ../android
 cd ../android
 
