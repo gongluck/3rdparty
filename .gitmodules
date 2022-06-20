@@ -49,3 +49,6 @@
 [submodule "webrtc/src"]
 	path = webrtc/src
 	url = https://webrtc.googlesource.com/src
+[submodule "libopus/src"]
+	path = libopus/src
+	url = https://github.com/xiph/opus.git
