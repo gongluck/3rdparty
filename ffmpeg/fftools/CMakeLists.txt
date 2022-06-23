@@ -19,13 +19,13 @@ if(CMAKE_CL_64)
 # 分别设置了Debug版本和Release版本可执行文件的输出目录(经测试,windows环境有效)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PROJECT_SOURCE_DIR}/../bin/x64)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PROJECT_SOURCE_DIR}/../bin/x64)
-link_directories(${subject} ${PROJECT_SOURCE_DIR}/../../ffmpeg/lib/x64)
+link_directories(${subject} ${PROJECT_SOURCE_DIR}/../../ffmpeg/lib/windows/x64)
 else()
 #win32
 # 分别设置了Debug版本和Release版本可执行文件的输出目录(经测试,windows环境有效)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PROJECT_SOURCE_DIR}/../bin/win32)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PROJECT_SOURCE_DIR}/../bin/win32)
-link_directories(${subject} ${PROJECT_SOURCE_DIR}/../lib/win32)
+link_directories(${subject} ${PROJECT_SOURCE_DIR}/../lib/windows/win32)
 endif(CMAKE_CL_64)
 endif(WIN32)
 
@@ -45,12 +45,8 @@ ${PROJECT_SOURCE_DIR}/ffmpeg_opt.c
 if(WIN32)
 #windows
 #链接ffmpeg静态库
-#target_link_libraries(${subject} avformat.lib avcodec.lib avutil.lib swscale.lib swresample.lib avfilter.lib avdevice.lib postproc.lib)
-#静态库补充依赖
-#target_link_libraries(${subject} libx264.lib fdk-aac.lib)
-#target_link_libraries(${subject} Ws2_32.lib Secur32.lib Mfuuid.lib Mfplat.lib Strmiids.lib Bcrypt.lib Shlwapi.lib Vfw32.lib)
-#链接ffmpeg动态库
-target_link_libraries(${subject} avformat.dll.lib avcodec.dll.lib avutil.dll.lib swscale.dll.lib swresample.dll.lib avfilter.dll.lib avdevice.dll.lib postproc.dll.lib)
+target_link_libraries(${subject} avformat avcodec avutil swscale swresample avfilter avdevice postproc)
+target_link_libraries(${subject} Ws2_32 Secur32 Mfuuid Mfplat Strmiids Bcrypt Shlwapi Vfw32)
 endif(WIN32)
 
 set_property(TARGET ${subject} PROPERTY DEBUG_POSTFIX _d)
@@ -65,13 +61,13 @@ if(CMAKE_CL_64)
 # 分别设置了Debug版本和Release版本可执行文件的输出目录(经测试,windows环境有效)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PROJECT_SOURCE_DIR}/../bin/x64)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PROJECT_SOURCE_DIR}/../bin/x64)
-link_directories(${subject} ${PROJECT_SOURCE_DIR}/../../ffmpeg/lib/x64)
+link_directories(${subject} ${PROJECT_SOURCE_DIR}/../../ffmpeg/lib/windows/x64)
 else()
 #win32
 # 分别设置了Debug版本和Release版本可执行文件的输出目录(经测试,windows环境有效)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PROJECT_SOURCE_DIR}/../bin/win32)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PROJECT_SOURCE_DIR}/../bin/win32)
-link_directories(${subject} ${PROJECT_SOURCE_DIR}/../lib/win32)
+link_directories(${subject} ${PROJECT_SOURCE_DIR}/../lib/windows/win32)
 endif(CMAKE_CL_64)
 endif(WIN32)
 
@@ -85,12 +81,8 @@ ${PROJECT_SOURCE_DIR}/ffprobe.c
 if(WIN32)
 #windows
 #链接ffmpeg静态库
-#target_link_libraries(${subject} avformat.lib avcodec.lib avutil.lib swscale.lib swresample.lib avfilter.lib avdevice.lib postproc.lib)
-#静态库补充依赖
-#target_link_libraries(${subject} libx264.lib fdk-aac.lib)
-#target_link_libraries(${subject} Ws2_32.lib Secur32.lib Mfuuid.lib Mfplat.lib Strmiids.lib Bcrypt.lib Shlwapi.lib Vfw32.lib)
-#链接ffmpeg动态库
-target_link_libraries(${subject} avformat.dll.lib avcodec.dll.lib avutil.dll.lib swscale.dll.lib swresample.dll.lib avfilter.dll.lib avdevice.dll.lib postproc.dll.lib)
+target_link_libraries(${subject} avformat avcodec avutil swscale swresample avfilter avdevice postproc)
+target_link_libraries(${subject} Ws2_32 Secur32 Mfuuid Mfplat Strmiids Bcrypt Shlwapi Vfw32)
 endif(WIN32)
 
 set_property(TARGET ${subject} PROPERTY DEBUG_POSTFIX _d)
@@ -111,15 +103,15 @@ if(CMAKE_CL_64)
 # 分别设置了Debug版本和Release版本可执行文件的输出目录(经测试,windows环境有效)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PROJECT_SOURCE_DIR}/../bin/x64)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PROJECT_SOURCE_DIR}/../bin/x64)
-link_directories(${subject} ${PROJECT_SOURCE_DIR}/../../ffmpeg/lib/x64)
-link_directories(${subject} ${PROJECT_SOURCE_DIR}/../../SDL2/lib/x64)
+link_directories(${subject} ${PROJECT_SOURCE_DIR}/../../ffmpeg/lib/windows/x64)
+link_directories(${subject} ${PROJECT_SOURCE_DIR}/../../SDL2/lib/windows/x64)
 else()
 #win32
 # 分别设置了Debug版本和Release版本可执行文件的输出目录(经测试,windows环境有效)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PROJECT_SOURCE_DIR}/../bin/win32)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PROJECT_SOURCE_DIR}/../bin/win32)
-link_directories(${subject} ${PROJECT_SOURCE_DIR}/../..ffmpeg/lib/win32)
-link_directories(${subject} ${PROJECT_SOURCE_DIR}/../../SDL2/lib/win32)
+link_directories(${subject} ${PROJECT_SOURCE_DIR}/../..ffmpeg/lib/windows/win32)
+link_directories(${subject} ${PROJECT_SOURCE_DIR}/../../SDL2/lib/windows/win32)
 endif(CMAKE_CL_64)
 endif(WIN32)
 
@@ -133,14 +125,10 @@ ${PROJECT_SOURCE_DIR}/ffplay.c
 if(WIN32)
 #windows
 #链接ffmpeg静态库
-#target_link_libraries(${subject} avformat.lib avcodec.lib avutil.lib swscale.lib swresample.lib avfilter.lib avdevice.lib postproc.lib)
-#静态库补充依赖
-#target_link_libraries(${subject} libx264.lib fdk-aac.lib)
-#target_link_libraries(${subject} Ws2_32.lib Secur32.lib Mfuuid.lib Mfplat.lib Strmiids.lib Bcrypt.lib Shlwapi.lib Vfw32.lib)
-#链接ffmpeg动态库
-target_link_libraries(${subject} avformat.dll.lib avcodec.dll.lib avutil.dll.lib swscale.dll.lib swresample.dll.lib avfilter.dll.lib avdevice.dll.lib postproc.dll.lib)
-#链接SDL2静态库
-target_link_libraries(${subject} SDL2-static.lib "winmm.lib" "version.lib" "Imm32.lib" "Setupapi.lib")
+target_link_libraries(${subject} avformat avcodec avutil swscale swresample avfilter avdevice postproc)
+target_link_libraries(${subject} Ws2_32 Secur32 Mfuuid Mfplat Strmiids Bcrypt Shlwapi Vfw32)
+#链接SDL静态库
+target_link_libraries(${subject} SDL2 winmm version Imm32 Setupapi)
 endif(WIN32)
 
 set_property(TARGET ${subject} PROPERTY DEBUG_POSTFIX _d)
