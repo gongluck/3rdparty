@@ -1,47 +1,28 @@
 #!/bin/bash
 
 #设置NDK路径
-export NDK=
+export NDK=/mnt/e/code/android/ndk/android-ndk-r21d-linux
 TOOLCHAIN=$NDK/toolchains/llvm/prebuilt/linux-x86_64
 
-function build_android
-{
-./configure \
---prefix=$PREFIX \
---enable-static --enable-shared --enable-gpl --enable-version3 --enable-nonfree \
---disable-ffmpeg --disable-ffplay --disable-ffprobe --disable-avdevice \
---disable-decoders --enable-decoder=h264 \
---disable-encoders \
---disable-filters \
---disable-parsers --enable-parser=h264 \
---disable-muxers \
---disable-demuxers \
---disable-bsfs \
---enable-small \
---disable-protocols \
---disable-hwaccels  \
---disable-postproc \
---disable-debug \
---enable-jni \
---disable-doc \
---disable-symver \
---cross-prefix=$CROSS_PREFIX \
---target-os=android \
---arch=$ARCH \
---cpu=$CPU \
---cc=$CC \
---cxx=$CXX \
---enable-cross-compile \
---sysroot=$SYSROOT \
---extra-cflags="-Os -fpic $OPTIMIZE_CFLAGS" \
---extra-ldflags="$ADDI_LDFLAGS" \
---disable-asm
+function build_android {
+  ./configure \
+    --prefix=$PREFIX \
+    --enable-postproc --enable-gpl --enable-static --disable-shared --disable-debug --disable-asm \
+    --cross-prefix=$CROSS_PREFIX \
+    --target-os=android \
+    --arch=$ARCH \
+    --cpu=$CPU \
+    --cc=$CC \
+    --cxx=$CXX \
+    --sysroot=$SYSROOT \
+    --extra-cflags="-Os -fpic $OPTIMIZE_CFLAGS" \
+    --extra-ldflags="$ADDI_LDFLAGS"
 
-make clean
-make -j16
-make install
+  make clean
+  make -j16
+  make install
 
-echo "============================ build android success =========================="
+  echo "============================ build android success =========================="
 }
 
 #armv7-a
@@ -53,7 +34,7 @@ CXX=$TOOLCHAIN/bin/armv7a-linux-androideabi$API-clang++
 SYSROOT=$NDK/toolchains/llvm/prebuilt/linux-x86_64/sysroot
 CROSS_PREFIX=$TOOLCHAIN/bin/arm-linux-androideabi-
 PREFIX=$(pwd)/android/armeabi-v7a
-OPTIMIZE_CFLAGS="-mfloat-abi=softfp -mfpu=vfp -marm -march=$CPU "
+OPTIMIZE_CFLAGS="-mfloat-abi=softfp -mfpu=vfp -marm -march=$CPU"
 
 echo "============================ start build armeabi-v7a=========================="
 build_android

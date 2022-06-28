@@ -1,0 +1,14 @@
+prefix=/mnt/e/code/AnalysisAVP/3rdparty/ffmpeg/src/android/x86_64
+exec_prefix=${prefix}
+libdir=/mnt/e/code/AnalysisAVP/3rdparty/ffmpeg/src/android/x86_64/lib
+includedir=/mnt/e/code/AnalysisAVP/3rdparty/ffmpeg/src/android/x86_64/include
+
+Name: libavcodec
+Description: FFmpeg codec library
+Version: 58.134.100
+Requires: libswresample >= 3.9.100, libavutil >= 56.70.100
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lavcodec -pthread -lm -lz
+Libs.private: 
+Cflags: -I${includedir}

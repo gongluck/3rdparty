@@ -1,0 +1,14 @@
+prefix=/mnt/e/code/AnalysisAVP/3rdparty/ffmpeg/src/android/x86_64
+exec_prefix=${prefix}
+libdir=/mnt/e/code/AnalysisAVP/3rdparty/ffmpeg/src/android/x86_64/lib
+includedir=/mnt/e/code/AnalysisAVP/3rdparty/ffmpeg/src/android/x86_64/include
+
+Name: libpostproc
+Description: FFmpeg postprocessing library
+Version: 55.9.100
+Requires: libavutil >= 56.70.100
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lpostproc -lm
+Libs.private: 
+Cflags: -I${includedir}

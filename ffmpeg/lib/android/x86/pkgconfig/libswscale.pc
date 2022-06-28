@@ -1,0 +1,14 @@
+prefix=/mnt/e/code/AnalysisAVP/3rdparty/ffmpeg/src/android/x86
+exec_prefix=${prefix}
+libdir=/mnt/e/code/AnalysisAVP/3rdparty/ffmpeg/src/android/x86/lib
+includedir=/mnt/e/code/AnalysisAVP/3rdparty/ffmpeg/src/android/x86/include
+
+Name: libswscale
+Description: FFmpeg image rescaling library
+Version: 5.9.100
+Requires: libavutil >= 56.70.100
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lswscale -lm
+Libs.private: 
+Cflags: -I${includedir}

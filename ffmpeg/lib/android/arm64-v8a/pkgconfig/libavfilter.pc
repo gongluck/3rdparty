@@ -1,0 +1,14 @@
+prefix=/mnt/e/code/AnalysisAVP/3rdparty/ffmpeg/src/android/arm64-v8a
+exec_prefix=${prefix}
+libdir=/mnt/e/code/AnalysisAVP/3rdparty/ffmpeg/src/android/arm64-v8a/lib
+includedir=/mnt/e/code/AnalysisAVP/3rdparty/ffmpeg/src/android/arm64-v8a/include
+
+Name: libavfilter
+Description: FFmpeg audio/video filtering library
+Version: 7.110.100
+Requires: libswscale >= 5.9.100, libpostproc >= 55.9.100, libavformat >= 58.76.100, libavcodec >= 58.134.100, libswresample >= 3.9.100, libavutil >= 56.70.100
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lavfilter -pthread -lm
+Libs.private: 
+Cflags: -I${includedir}
