@@ -1,0 +1,14 @@
+prefix=/mnt/e/code/AnalysisAVP/3rdparty/ffmpeg/src/linux/
+exec_prefix=${prefix}
+libdir=/mnt/e/code/AnalysisAVP/3rdparty/ffmpeg/src/linux//lib
+includedir=/mnt/e/code/AnalysisAVP/3rdparty/ffmpeg/src/linux//include
+
+Name: libavcodec
+Description: FFmpeg codec library
+Version: 58.134.100
+Requires: libswresample >= 3.9.100, libavutil >= 56.70.100
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lavcodec -pthread -lm -llzma -lz -lva
+Libs.private: 
+Cflags: -I${includedir}
