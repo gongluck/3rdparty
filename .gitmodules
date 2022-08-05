@@ -52,3 +52,6 @@
 [submodule "libopus/src"]
 	path = libopus/src
 	url = https://github.com/xiph/opus.git
+[submodule "libsrtp/src"]
+	path = libsrtp/src
+	url = https://github.com/cisco/libsrtp.git

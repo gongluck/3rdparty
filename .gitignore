@@ -1,4 +1,7 @@
+.vscode
+
 build
+install
 
 *.pdb
 *.exp
