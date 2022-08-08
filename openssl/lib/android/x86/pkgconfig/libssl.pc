@@ -1,0 +1,11 @@
+prefix=/mnt/e/code/AnalysisAVP/3rdparty/openssl/src/../install/android-x86
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: OpenSSL-libssl
+Description: Secure Sockets Layer and cryptography libraries
+Version: 3.0.6-dev
+Requires.private: libcrypto
+Libs: -L${libdir} -lssl
+Cflags: -I${includedir}
