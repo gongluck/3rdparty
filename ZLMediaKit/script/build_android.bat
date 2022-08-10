@@ -14,7 +14,7 @@ cmake -G "Unix Makefiles" -S ../src -B ../build/android/%abi% ^
 -DANDROID_NDK="%ANDROID_NDK_HOME%" ^
 -DCMAKE_BUILD_TYPE=release -DANDROID_ABI=%abi% -DANDROID_PLATFORM=%platform% ^
 -DCMAKE_INSTALL_PREFIX=../install/android/%abi% ^
--DENABLE_OPENSSL=ON -DOPENSSL_INCLUDE_DIR=../../openssl/include -DOPENSSL_SSL_LIBRARY=../../openssl/lib/android/%abi%/libssl.a -DOPENSSL_CRYPTO_LIBRARY=../../openssl/lib/android/%abi%/libcrypto.a ^
+-DENABLE_OPENSSL=ON -DOPENSSL_INCLUDE_DIR=../../openssl/include/android/armeabi -DOPENSSL_SSL_LIBRARY=../../openssl/lib/android/armeabi/libssl.a -DOPENSSL_CRYPTO_LIBRARY=../../openssl/lib/android/armeabi/libcrypto.a ^
 -DSRTP_INCLUDE_DIRS=../../libsrtp/include -DSRTP_LIBRARIES=../../libsrtp/lib/android/%abi%/libsrtp2.a -DENABLE_WEBRTC=ON ^
 -DENABLE_SERVER_LIB=ON -DENABLE_TESTS=OFF -DENABLE_API_STATIC_LIB=ON -DENABLE_CXX_API=ON
 cmake --build ../build/android/%abi% --clean-first --config release --target all -- -j8
@@ -28,7 +28,7 @@ cmake -G "Unix Makefiles" -S ../src -B ../build/android/%abi% ^
 -DANDROID_NDK="%ANDROID_NDK_HOME%" ^
 -DCMAKE_BUILD_TYPE=release -DANDROID_ABI=%abi% -DANDROID_PLATFORM=%platform% ^
 -DCMAKE_INSTALL_PREFIX=../install/android/%abi% ^
--DENABLE_OPENSSL=ON -DOPENSSL_INCLUDE_DIR=../../openssl/include -DOPENSSL_SSL_LIBRARY=../../openssl/lib/android/%abi%/libssl.a -DOPENSSL_CRYPTO_LIBRARY=../../openssl/lib/android/%abi%/libcrypto.a ^
+-DENABLE_OPENSSL=ON -DOPENSSL_INCLUDE_DIR=../../openssl/include/android/%abi% -DOPENSSL_SSL_LIBRARY=../../openssl/lib/android/%abi%/libssl.a -DOPENSSL_CRYPTO_LIBRARY=../../openssl/lib/android/%abi%/libcrypto.a ^
 -DSRTP_INCLUDE_DIRS=../../libsrtp/include -DSRTP_LIBRARIES=../../libsrtp/lib/android/%abi%/libsrtp2.a -DENABLE_WEBRTC=ON ^
 -DENABLE_SERVER_LIB=ON -DENABLE_TESTS=OFF -DENABLE_API_STATIC_LIB=ON -DENABLE_CXX_API=ON
 cmake --build ../build/android/%abi% --clean-first --config release --target all -- -j8
@@ -42,7 +42,7 @@ cmake -G "Unix Makefiles" -S ../src -B ../build/android/%abi% ^
 -DANDROID_NDK="%ANDROID_NDK_HOME%" ^
 -DCMAKE_BUILD_TYPE=release -DANDROID_ABI=%abi% -DANDROID_PLATFORM=%platform% ^
 -DCMAKE_INSTALL_PREFIX=../install/android/%abi% ^
--DENABLE_OPENSSL=ON -DOPENSSL_INCLUDE_DIR=../../openssl/include -DOPENSSL_SSL_LIBRARY=../../openssl/lib/android/%abi%/libssl.a -DOPENSSL_CRYPTO_LIBRARY=../../openssl/lib/android/%abi%/libcrypto.a ^
+-DENABLE_OPENSSL=ON -DOPENSSL_INCLUDE_DIR=../../openssl/include/android/%abi% -DOPENSSL_SSL_LIBRARY=../../openssl/lib/android/%abi%/libssl.a -DOPENSSL_CRYPTO_LIBRARY=../../openssl/lib/android/%abi%/libcrypto.a ^
 -DSRTP_INCLUDE_DIRS=../../libsrtp/include -DSRTP_LIBRARIES=../../libsrtp/lib/android/%abi%/libsrtp2.a -DENABLE_WEBRTC=ON ^
 -DENABLE_SERVER_LIB=ON -DENABLE_TESTS=OFF -DENABLE_API_STATIC_LIB=ON -DENABLE_CXX_API=ON
 cmake --build ../build/android/%abi% --clean-first --config release --target all -- -j8
@@ -56,7 +56,7 @@ cmake -G "Unix Makefiles" -S ../src -B ../build/android/%abi% ^
 -DANDROID_NDK="%ANDROID_NDK_HOME%" ^
 -DCMAKE_BUILD_TYPE=release -DANDROID_ABI=%abi% -DANDROID_PLATFORM=%platform% ^
 -DCMAKE_INSTALL_PREFIX=../install/android/%abi% ^
--DENABLE_OPENSSL=ON -DOPENSSL_INCLUDE_DIR=../../openssl/include -DOPENSSL_SSL_LIBRARY=../../openssl/lib/android/%abi%/libssl.a -DOPENSSL_CRYPTO_LIBRARY=../../openssl/lib/android/%abi%/libcrypto.a ^
+-DENABLE_OPENSSL=ON -DOPENSSL_INCLUDE_DIR=../../openssl/include/android/%abi% -DOPENSSL_SSL_LIBRARY=../../openssl/lib/android/%abi%/libssl.a -DOPENSSL_CRYPTO_LIBRARY=../../openssl/lib/android/%abi%/libcrypto.a ^
 -DSRTP_INCLUDE_DIRS=../../libsrtp/include -DSRTP_LIBRARIES=../../libsrtp/lib/android/%abi%/libsrtp2.a -DENABLE_WEBRTC=ON ^
 -DENABLE_SERVER_LIB=ON -DENABLE_TESTS=OFF -DENABLE_API_STATIC_LIB=ON -DENABLE_CXX_API=ON
 cmake --build ../build/android/%abi% --clean-first --config release --target all -- -j8

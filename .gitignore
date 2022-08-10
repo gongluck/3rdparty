@@ -2,6 +2,7 @@
 
 build
 install
+libzlmediakit.a
 
 *.pdb
 *.exp
