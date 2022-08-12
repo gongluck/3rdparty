@@ -2,8 +2,14 @@
 
 build
 install
-libzlmediakit.a
+build.log
 
 *.pdb
 *.exp
+*.a
+
+ZLMediaKit/bin/android/*/www
+ZLMediaKit/bin/android/*/api_tester_*
+ZLMediaKit/bin/android/*/*.ini
+ZLMediaKit/bin/android/*/*.pem
 webrtc/windows/
