@@ -13,18 +13,28 @@ rem 设置-DENABLE_WEBRTC=ON
 rem ➕按上面说明启用openssl
 rem ➕设置srtp库路径
 
+set pathprefix=../build/windows
+
 rem win32
-cmake -S ../src -B ../build/windows/win32 -G "Visual Studio 16 2019" -A win32 ^
--DENABLE_OPENSSL=ON -DOPENSSL_ROOT_DIR=C:/OpenSSL-Win32 ^
--DSRTP_INCLUDE_DIRS=../../libsrtp/include -DSRTP_LIBRARIES=../../libsrtp/lib/windows/win32/srtp2.lib ^
--DENABLE_WEBRTC=ON
-cmake --build ../build/windows/win32 --clean-first --config release --target ALL_BUILD
+set platform=win32
+set buildpath=%pathprefix%/%platform%
+set opensslparams=-DENABLE_OPENSSL=ON -DOPENSSL_ROOT_DIR=C:/OpenSSL-Win32
+set srtparams=-DSRTP_INCLUDE_DIRS=../../libsrtp/include -DSRTP_LIBRARIES=../../libsrtp/lib/windows/win32/srtp2.lib
+cmake -S ../src -B %buildpath% -G "Visual Studio 16 2019" -A %platform% -DCMAKE_INSTALL_PREFIX=%pathprefix%/../../install/windows/%platform% ^
+%opensslparams% %srtparams% -DENABLE_WEBRTC=ON -DENABLE_CXX_API=ON
+cmake --build %buildpath% --clean-first --config release --target ALL_BUILD
+cmake --install %buildpath% --prefix %pathprefix%/../../install/windows/%platform% --config release
+xcopy /S /Y /I ..\src\release\windows\Debug\Release\* ..\install\windows\%platform%\lib\
 
 rem x64
-@REM cmake -S ../src -B ../build/windows/x64 -G "Visual Studio 16 2019" -A x64 -DENABLE_OPENSSL=OFF ^
-@REM -DENABLE_OPENSSL=ON -DOPENSSL_ROOT_DIR=C:/OpenSSL-Win64 ^
-@REM -DSRTP_INCLUDE_DIRS=../../libsrtp/include -DSRTP_LIBRARIES=../../libsrtp/lib/windows/x64/srtp2.lib ^
-@REM -DENABLE_WEBRTC=ON
-@REM cmake --build ../build/windows/x64 --clean-first --config release --target ALL_BUILD
+set platform=x64
+set buildpath=%pathprefix%/%platform%
+set opensslparams=-DENABLE_OPENSSL=ON -DOPENSSL_ROOT_DIR=C:/OpenSSL-Win64
+set srtparams=-DSRTP_INCLUDE_DIRS=../../libsrtp/include -DSRTP_LIBRARIES=../../libsrtp/lib/windows/x64/srtp2.lib
+cmake -S ../src -B %buildpath% -G "Visual Studio 16 2019" -A %platform% -DCMAKE_INSTALL_PREFIX=%pathprefix%/../../install/windows/%platform% ^
+%opensslparams% %srtparams% -DENABLE_WEBRTC=ON -DENABLE_CXX_API=ON
+cmake --build %buildpath% --clean-first --config release --target ALL_BUILD
+cmake --install %buildpath% --prefix %pathprefix%/../../install/windows/%platform% --config release
+xcopy /S /Y /I ..\src\release\windows\Debug\Release\* ..\install\windows\%platform%\lib\
 
 pause
