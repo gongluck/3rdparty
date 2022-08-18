@@ -9,10 +9,10 @@
 #  ifndef API_EXPORT
 #    ifdef mk_api_EXPORTS
         /* We are building this library */
-#      define API_EXPORT 
+#      define API_EXPORT __declspec(dllexport)
 #    else
         /* We are using this library */
-#      define API_EXPORT 
+#      define API_EXPORT __declspec(dllimport)
 #    endif
 #  endif
 
@@ -22,7 +22,7 @@
 #endif
 
 #ifndef MK_API_DEPRECATED
-#  define MK_API_DEPRECATED __attribute__ ((__deprecated__))
+#  define MK_API_DEPRECATED __declspec(deprecated)
 #endif
 
 #ifndef MK_API_DEPRECATED_EXPORT

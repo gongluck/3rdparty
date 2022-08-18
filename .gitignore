@@ -6,10 +6,16 @@ build.log
 
 *.pdb
 *.exp
+*.dll
+*.lib
 *.a
 
 ZLMediaKit/bin/android/*/www
 ZLMediaKit/bin/android/*/api_tester_*
 ZLMediaKit/bin/android/*/*.ini
 ZLMediaKit/bin/android/*/*.pem
+ZLMediaKit/bin/windows/*/www
+ZLMediaKit/bin/windows/*/*.exe
+ZLMediaKit/bin/windows/*/*.ini
+ZLMediaKit/bin/windows/*/*.pem
 webrtc/windows/
