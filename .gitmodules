@@ -58,3 +58,6 @@
 [submodule "openssl/src"]
 	path = openssl/src
 	url = https://github.com/openssl/openssl.git
+[submodule "usrsctp/src"]
+	path = usrsctp/src
+	url = https://github.com/sctplab/usrsctp
