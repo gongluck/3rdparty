@@ -12,4 +12,5 @@
   - [x] windows
   - [x] android 
 - [x] [ZLMediaKit](./ZLMediaKit)
+  - [x] windows 
   - [x] android
