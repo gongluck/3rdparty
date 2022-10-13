@@ -18,7 +18,7 @@
 
 namespace mediakit {
 
-class RtpProcess : public toolkit::SockInfo, public MediaSinkInterface, public MediaSourceEventInterceptor, public std::enable_shared_from_this<RtpProcess>{
+class RtpProcess : public RtcpContextForRecv, public toolkit::SockInfo, public MediaSinkInterface, public MediaSourceEventInterceptor, public std::enable_shared_from_this<RtpProcess>{
 public:
     typedef std::shared_ptr<RtpProcess> Ptr;
     friend class RtpProcessHelper;
@@ -35,7 +35,7 @@ public:
      * @param dts_out 解析出最新的dts
      * @return 是否解析成功
      */
-    bool inputRtp(bool is_udp, const toolkit::Socket::Ptr &sock, const char *data, size_t len, const struct sockaddr *addr , uint32_t *dts_out = nullptr);
+    bool inputRtp(bool is_udp, const toolkit::Socket::Ptr &sock, const char *data, size_t len, const struct sockaddr *addr , uint64_t *dts_out = nullptr);
 
     /**
      * 是否超时，用于超时移除对象
@@ -64,11 +64,6 @@ public:
     uint16_t get_peer_port() override;
     std::string getIdentifier() const override;
 
-    int getTotalReaderCount();
-    void setListener(const std::weak_ptr<MediaSourceEvent> &listener);
-
-    void setHelper(const std::weak_ptr<RtcpContext> help);
-    int getLossRate(MediaSource &sender, TrackType type) override;
 protected:
     bool inputFrame(const Frame::Ptr &frame) override;
     bool addTrack(const Track::Ptr & track) override;
@@ -80,13 +75,14 @@ protected:
     std::string getOriginUrl(MediaSource &sender) const override;
     std::shared_ptr<SockInfo> getOriginSock(MediaSource &sender) const override;
     toolkit::EventPoller::Ptr getOwnerPoller(MediaSource &sender) override;
+    float getLossRate(MediaSource &sender, TrackType type) override;
 
 private:
     void emitOnPublish();
     void doCachedFunc();
 
 private:
-    uint32_t _dts = 0;
+    uint64_t _dts = 0;
     uint64_t _total_bytes = 0;
     std::unique_ptr<sockaddr_storage> _addr;
     toolkit::Socket::Ptr _sock;
@@ -102,7 +98,6 @@ private:
     toolkit::Ticker _last_check_alive;
     std::recursive_mutex _func_mtx;
     std::deque<std::function<void()> > _cached_func;
-    std::weak_ptr<RtcpContext> _help;
 };
 
 }//namespace mediakit

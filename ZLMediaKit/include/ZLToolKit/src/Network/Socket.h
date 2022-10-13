@@ -17,7 +17,7 @@
 #include <atomic>
 #include <sstream>
 #include <functional>
-#include "Util/TimeTicker.h"
+#include "Util/SpeedStatistic.h"
 #include "sockutil.h"
 #include "Poller/Timer.h"
 #include "Poller/EventPoller.h"
@@ -375,6 +375,12 @@ public:
     virtual ssize_t send(Buffer::Ptr buf, struct sockaddr *addr = nullptr, socklen_t addr_len = 0, bool try_flush = true);
 
     /**
+     * 尝试将所有数据写socket
+     * @return -1代表失败(socket无效或者发送超时)，0代表成功?
+     */
+    int flushAll();
+
+    /**
      * 关闭socket且触发onErr回调，onErr回调将在poller线程中进行
      * @param err 错误原因
      * @return 是否成功触发onErr回调
@@ -453,6 +459,16 @@ public:
      */
     virtual uint64_t elapsedTimeAfterFlushed();
 
+    /**
+     * 获取接收速率，单位bytes/s
+     */
+    int getRecvSpeed();
+
+    /**
+     * 获取发送速率，单位bytes/s
+     */
+    int getSendSpeed();
+
     ////////////SockInfo override////////////
     std::string get_local_ip() override;
     uint16_t get_local_port() override;
@@ -527,6 +543,11 @@ private:
     BufferList::SendResult _send_result;
     //对象个数统计
     ObjectStatistic<Socket> _statistic;
+
+    //接收速率统计
+    BytesSpeed _recv_speed;
+    //发送速率统计
+    BytesSpeed _send_speed;
 };
 
 class SockSender {
@@ -596,6 +617,17 @@ public:
      */
     Socket::Ptr createSocket();
 
+    /**
+     * 获取socket对象
+     */
+    const Socket::Ptr &getSock() const;
+
+    /**
+     * 尝试将所有数据写socket
+     * @return -1代表失败(socket无效或者发送超时)，0代表成功?
+     */
+    int flushAll();
+
     ///////////////////// SockInfo override /////////////////////
     std::string get_local_ip() override;
     uint16_t get_local_port() override;
@@ -625,7 +657,6 @@ public:
 protected:
     void setPoller(const EventPoller::Ptr &poller);
     void setSock(const Socket::Ptr &sock);
-    const Socket::Ptr& getSock() const;
 
 private:
     bool _try_flush = true;

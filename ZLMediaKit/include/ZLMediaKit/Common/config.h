@@ -106,6 +106,10 @@ extern const std::string kBroadcastNotFoundStream;
 extern const std::string kBroadcastStreamNoneReader;
 #define BroadcastStreamNoneReaderArgs MediaSource &sender
 
+// rtp推流被动停止时触发
+extern const std::string kBroadcastSendRtpStopped;
+#define BroadcastSendRtpStopped MultiMediaSourceMuxer &sender, const std::string &ssrc, const SockException &ex
+
 // 更新配置文件事件广播,执行loadIniConfig函数加载配置文件成功后会触发该广播
 extern const std::string kBroadcastReloadConfig;
 #define BroadcastReloadConfigArgs void
@@ -295,6 +299,8 @@ extern const std::string kFileBufSize;
 extern const std::string kFastStart;
 // mp4文件是否重头循环读取
 extern const std::string kFileRepeat;
+// MP4录制是否当做播放器参与播放人数统计
+extern const std::string kMP4AsPlayer;
 } // namespace Record
 
 ////////////HLS相关配置///////////
@@ -369,6 +375,9 @@ extern const std::string kBeatIntervalMS;
 extern const std::string kBenchmarkMode;
 // 播放器在触发播放成功事件时，是否等待所有track ready时再回调
 extern const std::string kWaitTrackReady;
+// rtsp播放指定track，可选项有0(不指定，默认)、1(视频)、2(音频)
+// 设置方法:player[Client::kPlayTrack] = 0/1/2;
+extern const std::string kPlayTrack;
 } // namespace Client
 } // namespace mediakit
 

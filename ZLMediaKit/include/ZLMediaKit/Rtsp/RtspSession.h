@@ -82,7 +82,7 @@ protected:
 
     ///////MediaSourceEvent override///////
     // 关闭
-    bool close(MediaSource &sender, bool force) override;
+    bool close(MediaSource &sender) override;
     // 播放总人数
     int totalReaderCount(MediaSource &sender) override;
     // 获取媒体源类型
@@ -91,7 +91,6 @@ protected:
     std::string getOriginUrl(MediaSource &sender) const override;
     // 获取媒体源客户端相关信息
     std::shared_ptr<SockInfo> getOriginSock(MediaSource &sender) const override;
-    toolkit::EventPoller::Ptr getOwnerPoller(MediaSource &sender) override;
 
     /////TcpSession override////
     ssize_t send(toolkit::Buffer::Ptr pkt) override;
@@ -196,6 +195,8 @@ private:
     RtspMediaSource::RingType::RingReader::Ptr _play_reader;
     //sdp里面有效的track,包含音频或视频
     std::vector<SdpTrack::Ptr> _sdp_track;
+    //播放器setup指定的播放track,默认为TrackInvalid表示不指定即音视频都推
+    TrackType _target_play_track = TrackInvalid;
 
     ////////RTP over udp////////
     //RTP端口,trackid idx 为数组下标

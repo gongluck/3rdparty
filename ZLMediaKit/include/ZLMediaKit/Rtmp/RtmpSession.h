@@ -71,7 +71,7 @@ private:
 
     ///////MediaSourceEvent override///////
     // 关闭
-    bool close(MediaSource &sender, bool force) override;
+    bool close(MediaSource &sender) override;
     // 播放总人数
     int totalReaderCount(MediaSource &sender) override;
     // 获取媒体源类型
@@ -80,7 +80,6 @@ private:
     std::string getOriginUrl(MediaSource &sender) const override;
     // 获取媒体源客户端相关信息
     std::shared_ptr<SockInfo> getOriginSock(MediaSource &sender) const override;
-    toolkit::EventPoller::Ptr getOwnerPoller(MediaSource &sender) override;
 
     void setSocketFlags();
     std::string getStreamId(const std::string &str);

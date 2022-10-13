@@ -19,13 +19,8 @@
 #include <unordered_map>
 #include "Common/config.h"
 #include "Common/Parser.h"
-#include "Util/logger.h"
-#include "Util/TimeTicker.h"
-#include "Util/NoticeCenter.h"
 #include "Util/List.h"
 #include "Network/Socket.h"
-#include "Rtsp/Rtsp.h"
-#include "Rtmp/Rtmp.h"
 #include "Extension/Track.h"
 #include "Record/Recorder.h"
 
@@ -54,6 +49,14 @@ class MediaSource;
 class MediaSourceEvent {
 public:
     friend class MediaSource;
+
+    class NotImplemented : public std::runtime_error {
+    public:
+        template<typename ...T>
+        NotImplemented(T && ...args) : std::runtime_error(std::forward<T>(args)...) {}
+        ~NotImplemented() override = default;
+    };
+
     MediaSourceEvent(){};
     virtual ~MediaSourceEvent(){};
 
@@ -71,23 +74,23 @@ public:
     // 通知倍数
     virtual bool speed(MediaSource &sender, float speed) { return false; }
     // 通知其停止产生流
-    virtual bool close(MediaSource &sender, bool force) { return false; }
-    // 获取观看总人数
-    virtual int totalReaderCount(MediaSource &sender) = 0;
+    virtual bool close(MediaSource &sender) { return false; }
+    // 获取观看总人数，此函数一般强制重载
+    virtual int totalReaderCount(MediaSource &sender) { throw NotImplemented(toolkit::demangle(typeid(*this).name()) + "::totalReaderCount not implemented"); }
     // 通知观看人数变化
     virtual void onReaderChanged(MediaSource &sender, int size);
     //流注册或注销事件
-    virtual void onRegist(MediaSource &sender, bool regist) {};
+    virtual void onRegist(MediaSource &sender, bool regist) {}
     // 获取丢包率
-    virtual int getLossRate(MediaSource &sender, TrackType type) { return -1; }
-    // 获取所在线程
-    virtual toolkit::EventPoller::Ptr getOwnerPoller(MediaSource &sender) { return nullptr; }
+    virtual float getLossRate(MediaSource &sender, TrackType type) { return -1; }
+    // 获取所在线程, 此函数一般强制重载
+    virtual toolkit::EventPoller::Ptr getOwnerPoller(MediaSource &sender) { throw NotImplemented(toolkit::demangle(typeid(*this).name()) + "::getOwnerPoller not implemented"); }
 
     ////////////////////////仅供MultiMediaSourceMuxer对象继承////////////////////////
     // 开启或关闭录制
     virtual bool setupRecord(MediaSource &sender, Recorder::type type, bool start, const std::string &custom_path, size_t max_second) { return false; };
     // 获取录制状态
-    virtual bool isRecording(MediaSource &sender, Recorder::type type) { return false; };
+    virtual bool isRecording(MediaSource &sender, Recorder::type type) { return false; }
     // 获取所有track相关信息
     virtual std::vector<Track::Ptr> getMediaTracks(MediaSource &sender, bool trackReady = true) const { return std::vector<Track::Ptr>(); };
 
@@ -111,6 +114,15 @@ public:
         uint16_t dst_port;
         // 发送目标主机地址，可以是ip或域名
         std::string dst_url;
+
+        //udp发送时，是否开启rr rtcp接收超时判断
+        bool udp_rtcp_timeout = false;
+        //tcp被动发送服务器延时关闭事件，单位毫秒
+        uint32_t tcp_passive_close_delay_ms = 5 * 1000;
+        //udp 发送时，rr rtcp包接收超时时间，单位毫秒
+        uint32_t rtcp_timeout_ms = 30 * 1000;
+        //udp 发送时，发送sr rtcp包间隔，单位毫秒
+        uint32_t rtcp_send_interval_ms = 5 * 1000;
     };
 
     // 开始发送ps-rtp
@@ -138,7 +150,7 @@ public:
     bool seekTo(MediaSource &sender, uint32_t stamp) override;
     bool pause(MediaSource &sender,  bool pause) override;
     bool speed(MediaSource &sender, float speed) override;
-    bool close(MediaSource &sender, bool force) override;
+    bool close(MediaSource &sender) override;
     int totalReaderCount(MediaSource &sender) override;
     void onReaderChanged(MediaSource &sender, int size) override;
     void onRegist(MediaSource &sender, bool regist) override;
@@ -147,7 +159,7 @@ public:
     std::vector<Track::Ptr> getMediaTracks(MediaSource &sender, bool trackReady = true) const override;
     void startSendRtp(MediaSource &sender, const SendRtpArgs &args, const std::function<void(uint16_t, const toolkit::SockException &)> cb) override;
     bool stopSendRtp(MediaSource &sender, const std::string &ssrc) override;
-    int getLossRate(MediaSource &sender, TrackType type) override;
+    float getLossRate(MediaSource &sender, TrackType type) override;
     toolkit::EventPoller::Ptr getOwnerPoller(MediaSource &sender) override;
 
 private:
@@ -163,7 +175,12 @@ public:
     MediaInfo() {}
     MediaInfo(const std::string &url) { parse(url); }
     void parse(const std::string &url);
-
+    std::string shortUrl() const {
+        return _vhost + "/" + _app + "/" + _streamid;
+    }
+    std::string getUrl() const {
+        return _schema + "://" + shortUrl();
+    }
 public:
     std::string _full_url;
     std::string _schema;
@@ -175,63 +192,13 @@ public:
     std::string _param_strs;
 };
 
-class BytesSpeed {
-public:
-    BytesSpeed() = default;
-    ~BytesSpeed() = default;
-
-    /**
-     * 添加统计字节
-     */
-    BytesSpeed& operator += (size_t bytes) {
-        _bytes += bytes;
-        if (_bytes > 1024 * 1024) {
-            //数据大于1MB就计算一次网速
-            computeSpeed();
-        }
-        return *this;
-    }
-
-    /**
-     * 获取速度，单位bytes/s
-     */
-    int getSpeed() {
-        if (_ticker.elapsedTime() < 1000) {
-            //获取频率小于1秒，那么返回上次计算结果
-            return _speed;
-        }
-        return computeSpeed();
-    }
-
-private:
-    int computeSpeed() {
-        auto elapsed = _ticker.elapsedTime();
-        if (!elapsed) {
-            return _speed;
-        }
-        _speed = (int)(_bytes * 1000 / elapsed);
-        _ticker.resetTime();
-        _bytes = 0;
-        return _speed;
-    }
-
-private:
-    int _speed = 0;
-    size_t _bytes = 0;
-    toolkit::Ticker _ticker;
-};
-
 /**
  * 媒体源，任何rtsp/rtmp的直播流都源自该对象
  */
 class MediaSource: public TrackSource, public std::enable_shared_from_this<MediaSource> {
 public:
-    static MediaSource * const NullMediaSource;
+    static MediaSource& NullMediaSource();
     using Ptr = std::shared_ptr<MediaSource>;
-    using StreamMap = std::unordered_map<std::string/*stream_id*/, std::weak_ptr<MediaSource> >;
-    using AppStreamMap = std::unordered_map<std::string/*app*/, StreamMap>;
-    using VhostAppStreamMap = std::unordered_map<std::string/*vhost*/, AppStreamMap>;
-    using SchemaVhostAppStreamMap = std::unordered_map<std::string/*schema*/, VhostAppStreamMap>;
 
     MediaSource(const std::string &schema, const std::string &vhost, const std::string &app, const std::string &stream_id) ;
     virtual ~MediaSource();
@@ -247,6 +214,13 @@ public:
     // 流id
     const std::string& getId() const;
 
+    std::string shortUrl() const {
+        return  _vhost + "/" + _app + "/" + _stream_id;
+    }
+    std::string getUrl() const {
+        return _schema + "://" + shortUrl();
+    }
+    
     //获取对象所有权
     std::shared_ptr<void> getOwnership();
 
@@ -261,7 +235,7 @@ public:
     // 获取数据速率，单位bytes/s
     int getBytesSpeed(TrackType type = TrackInvalid);
     // 获取流创建GMT unix时间戳，单位秒
-    uint64_t getCreateStamp() const;
+    uint64_t getCreateStamp() const {return _create_stamp;}
     // 获取流上线时间，单位秒
     uint64_t getAliveSecond() const;
 
@@ -276,6 +250,12 @@ public:
     virtual int readerCount() = 0;
     // 观看者个数，包括(hls/rtsp/rtmp)
     virtual int totalReaderCount();
+    // 获取播放器列表
+    virtual void getPlayerList(const std::function<void(const std::list<std::shared_ptr<void>> &info_list)> &cb,
+                               const std::function<std::shared_ptr<void>(std::shared_ptr<void> &&info)> &on_change) {
+        assert(cb);
+        cb(std::list<std::shared_ptr<void>>());
+    }
 
     // 获取媒体源类型
     MediaOriginType getOriginType() const;
@@ -303,7 +283,7 @@ public:
     // 停止发送ps-rtp
     bool stopSendRtp(const std::string &ssrc);
     // 获取丢包率
-    int getLossRate(mediakit::TrackType type);
+    float getLossRate(mediakit::TrackType type);
     // 获取所在线程
     toolkit::EventPoller::Ptr getOwnerPoller();
 
@@ -311,8 +291,11 @@ public:
 
     // 同步查找流
     static Ptr find(const std::string &schema, const std::string &vhost, const std::string &app, const std::string &id, bool from_mp4 = false);
+    static Ptr find(const MediaInfo &info, bool from_mp4 = false) {
+        return find(info._schema, info._vhost, info._app, info._streamid, from_mp4);
+    }
 
-    // 忽略类型，同步查找流，可能返回rtmp/rtsp/hls类型
+    // 忽略schema，同步查找流，可能返回rtmp/rtsp/hls类型
     static Ptr find(const std::string &vhost, const std::string &app, const std::string &stream_id, bool from_mp4 = false);
 
     // 异步查找流
@@ -333,7 +316,7 @@ private:
     void emitEvent(bool regist);
 
 protected:
-    BytesSpeed _speed[TrackMax];
+    toolkit::BytesSpeed _speed[TrackMax];
 
 private:
     std::atomic_flag _owned { false };
@@ -358,6 +341,7 @@ public:
     bool isFlushAble(bool is_video, bool is_key, uint64_t new_stamp, size_t cache_size);
 
 private:
+    // 音视频的最后时间戳
     uint64_t _last_stamp[2] = {0, 0};
 };
 

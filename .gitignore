@@ -9,6 +9,7 @@ build.log
 *.dll
 *.lib
 *.a
+*.log
 
 ZLMediaKit/bin/android/*/www
 ZLMediaKit/bin/android/*/api_tester_*

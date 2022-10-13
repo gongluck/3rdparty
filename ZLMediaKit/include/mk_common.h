@@ -162,10 +162,31 @@ API_EXPORT uint16_t API_CALL mk_rtp_server_start(uint16_t port);
 
 /**
  * 创建rtc服务器
- * @param port rtp监听端口
+ * @param port rtc监听端口
  * @return 0:失败,非0:端口号
  */
 API_EXPORT uint16_t API_CALL mk_rtc_server_start(uint16_t port);
+
+//获取webrtc answer sdp回调函数
+typedef void(API_CALL *on_mk_webrtc_get_answer_sdp)(void *user_data, const char *answer, const char *err);
+
+/**
+ * webrtc交换sdp，根据offer sdp生成answer sdp
+ * @param user_data 回调用户指针
+ * @param cb 回调函数
+ * @param type webrtc插件类型，支持echo,play,push
+ * @param offer webrtc offer sdp
+ * @param url rtc url, 例如 rtc://__defaultVhost/app/stream?key1=val1&key2=val2
+ */
+API_EXPORT void API_CALL mk_webrtc_get_answer_sdp(void *user_data, on_mk_webrtc_get_answer_sdp cb, const char *type,
+                                                  const char *offer, const char *url);
+
+/**
+ * 创建srt服务器
+ * @param port srt监听端口
+ * @return 0:失败,非0:端口号
+ */
+API_EXPORT uint16_t API_CALL mk_srt_server_start(uint16_t port);
 
 
 /**

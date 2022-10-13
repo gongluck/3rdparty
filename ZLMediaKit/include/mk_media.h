@@ -15,6 +15,7 @@
 #include "mk_track.h"
 #include "mk_frame.h"
 #include "mk_events_objects.h"
+#include "mk_thread.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -99,7 +100,7 @@ API_EXPORT int API_CALL mk_media_input_frame(mk_media ctx, mk_frame frame);
  * @param pts 播放时间戳，单位毫秒
  * @return 1代表成功，0失败
  */
-API_EXPORT int API_CALL mk_media_input_h264(mk_media ctx, const void *data, int len, uint32_t dts, uint32_t pts);
+API_EXPORT int API_CALL mk_media_input_h264(mk_media ctx, const void *data, int len, uint64_t dts, uint64_t pts);
 
 /**
  * 输入单帧H265视频，帧起始字节00 00 01,00 00 00 01均可，请改用mk_media_input_frame方法
@@ -110,7 +111,7 @@ API_EXPORT int API_CALL mk_media_input_h264(mk_media ctx, const void *data, int 
  * @param pts 播放时间戳，单位毫秒
  * @return 1代表成功，0失败
  */
-API_EXPORT int API_CALL mk_media_input_h265(mk_media ctx, const void *data, int len, uint32_t dts, uint32_t pts);
+API_EXPORT int API_CALL mk_media_input_h265(mk_media ctx, const void *data, int len, uint64_t dts, uint64_t pts);
 
 /**
  * 输入YUV视频数据
@@ -119,7 +120,7 @@ API_EXPORT int API_CALL mk_media_input_h265(mk_media ctx, const void *data, int 
  * @param linesize yuv420p linesize
  * @param cts 视频采集时间戳，单位毫秒
  */
-API_EXPORT void API_CALL mk_media_input_yuv(mk_media ctx, const char *yuv[3], int linesize[3], uint32_t cts);
+API_EXPORT void API_CALL mk_media_input_yuv(mk_media ctx, const char *yuv[3], int linesize[3], uint64_t cts);
 
 /**
  * 输入单帧AAC音频(单独指定adts头)，请改用mk_media_input_frame方法
@@ -130,7 +131,7 @@ API_EXPORT void API_CALL mk_media_input_yuv(mk_media ctx, const char *yuv[3], in
  * @param adts adts头，可以为null
  * @return 1代表成功，0失败
  */
-API_EXPORT int API_CALL mk_media_input_aac(mk_media ctx, const void *data, int len, uint32_t dts, void *adts);
+API_EXPORT int API_CALL mk_media_input_aac(mk_media ctx, const void *data, int len, uint64_t dts, void *adts);
 
 /**
  * 输入单帧PCM音频,启用ENABLE_FAAC编译时，该函数才有效
@@ -140,7 +141,7 @@ API_EXPORT int API_CALL mk_media_input_aac(mk_media ctx, const void *data, int l
  * @param dts 时间戳，毫秒
  * @return 1代表成功，0失败
  */
-API_EXPORT int API_CALL mk_media_input_pcm(mk_media ctx, void *data, int len, uint32_t pts);
+API_EXPORT int API_CALL mk_media_input_pcm(mk_media ctx, void *data, int len, uint64_t pts);
 
 /**
  * 输入单帧OPUS/G711音频帧，请改用mk_media_input_frame方法
@@ -150,7 +151,7 @@ API_EXPORT int API_CALL mk_media_input_pcm(mk_media ctx, void *data, int len, ui
  * @param dts 时间戳，毫秒
  * @return 1代表成功，0失败
  */
-API_EXPORT int API_CALL mk_media_input_audio(mk_media ctx, const void* data, int len, uint32_t dts);
+API_EXPORT int API_CALL mk_media_input_audio(mk_media ctx, const void* data, int len, uint64_t dts);
 
 /**
  * MediaSource.close()回调事件
@@ -246,7 +247,7 @@ API_EXPORT void API_CALL mk_media_set_on_regist(mk_media ctx, on_mk_media_source
 typedef on_mk_media_source_send_rtp_result on_mk_media_send_rtp_result;
 
 /**
- * 开始发送一路ps-rtp流(通过ssrc区分多路)
+ * 开始发送一路ps-rtp流(通过ssrc区分多路)，此api线程安全
  * @param ctx 对象指针
  * @param dst_url 目标ip或域名
  * @param dst_port 目标端口
@@ -258,12 +259,18 @@ typedef on_mk_media_source_send_rtp_result on_mk_media_send_rtp_result;
 API_EXPORT void API_CALL mk_media_start_send_rtp(mk_media ctx, const char *dst_url, uint16_t dst_port, const char *ssrc, int is_udp, on_mk_media_send_rtp_result cb, void *user_data);
 
 /**
- * 停止某路或全部ps-rtp发送
+ * 停止某路或全部ps-rtp发送，此api线程安全
  * @param ctx 对象指针
  * @param ssrc rtp的ssrc，10进制的字符串打印，如果为null或空字符串，则停止所有rtp推流
- * @return 1成功，0失败
  */
-API_EXPORT int API_CALL mk_media_stop_send_rtp(mk_media ctx, const char *ssrc);
+API_EXPORT void API_CALL mk_media_stop_send_rtp(mk_media ctx, const char *ssrc);
+
+/**
+ * 获取所属线程
+ * @param ctx 对象指针
+ */
+API_EXPORT mk_thread API_CALL mk_media_get_owner_thread(mk_media ctx);
+
 
 #ifdef __cplusplus
 }

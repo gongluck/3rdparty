@@ -27,7 +27,7 @@ public:
     ~FMP4Packet() override = default;
 
 public:
-    uint32_t time_stamp = 0;
+    uint64_t time_stamp = 0;
 };
 
 //FMP4直播源
@@ -49,6 +49,11 @@ public:
      */
     const RingType::Ptr &getRing() const {
         return _ring;
+    }
+
+    void getPlayerList(const std::function<void(const std::list<std::shared_ptr<void>> &info_list)> &cb,
+                       const std::function<std::shared_ptr<void>(std::shared_ptr<void> &&info)> &on_change) override {
+        _ring->getInfoList(cb, on_change);
     }
 
     /**
@@ -109,7 +114,6 @@ private:
             }
             strong_self->onReaderChanged(size);
         });
-        onReaderChanged(0);
         if (!_init_segment.empty()) {
             regist();
         }
