@@ -1,5 +1,5 @@
-del /f /s /q "../build/android/*.*"
-rd  /s /q "../build/android"
+del /f /s /q "..\build\android\*.*"
+rd  /s /q "..\build\android"
 
 set ANDROID_NDK_HOME=E:/code/android/ndk/android-ndk-r21b
 set platform=android-22
