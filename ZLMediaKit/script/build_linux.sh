@@ -13,7 +13,7 @@ build() {
     -DENABLE_WEBRTC=ON -DENABLE_CXX_API=ON -DENABLE_API_STATIC_LIB=ON -DCMAKE_BUILD_TYPE=$1
   cmake --build ../build/linux/$1 --clean-first --config $1 --target all -- -j8
   cmake --install ../build/linux/$1 --prefix ../install/linux/$1 --config $1
-  copy -r ../src/release/linux/$1/* ../install/linux/lib/
+  cp -r ../src/release/linux/$1/* ../install/linux/$1/lib/
   return 0
 }
 
