@@ -3,8 +3,19 @@
 rm -r ../build/linux
 mkdir ../build/linux
 
-cmake -S ../src -B ../build/linux/debug -DCMAKE_BUILD_TYPE=Debug
-cmake --build ../build/linux/debug --clean-first --config debug --target all
+# $1 config type
+build() {
+  cmake -S ../src -B ../build/linux/$1 -DCMAKE_INSTALL_PREFIX=../install/linux/$1 \
+    -DENABLE_OPENSSL=ON -DOPENSSL_INCLUDE_DIR=../../openssl/include \
+    -DOPENSSL_SSL_LIBRARY=../../openssl/lib/linux/libssl.a -DOPENSSL_CRYPTO_LIBRARY=../../openssl/lib/linux/libcrypto.a \
+    -DSRTP_INCLUDE_DIRS=../../libsrtp/include -DSRTP_LIBRARIES=../../libsrtp/lib/linux/libsrtp2.a \
+    -DSCTP_INCLUDE_DIRS=../../usrsctp/include -DSCTP_LIBRARIES=../../usrsctp/lib/linux/libusrsctp.a \
+    -DENABLE_WEBRTC=ON -DENABLE_CXX_API=ON -DENABLE_API_STATIC_LIB=ON -DCMAKE_BUILD_TYPE=$1
+  cmake --build ../build/linux/$1 --clean-first --config $1 --target all -- -j8
+  cmake --install ../build/linux/$1 --prefix ../install/linux/$1 --config $1
+  copy -r ../src/release/linux/$1/* ../install/linux/lib/
+  return 0
+}
 
-cmake -S ../src -B ../build/linux/release -DCMAKE_BUILD_TYPE=Release
-cmake --build ../build/linux/release --clean-first --config release --target all
+build debug
+build release
