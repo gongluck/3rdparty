@@ -3,6 +3,8 @@
 rm -r ../build/linux
 mkdir ../build/linux
 
+cd ../src && git submodule update --init && cd ../script
+
 # $1 config type
 build() {
   cmake -S ../src -B ../build/linux/$1 -DCMAKE_INSTALL_PREFIX=../install/linux/$1 \
