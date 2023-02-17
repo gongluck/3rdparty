@@ -1,44 +1,39 @@
 del /f /s /q "../build/windows/*.*"
 rd  /s /q "../build/windows"
+del /f /s /q "../install/windows/*.*"
+rd  /s /q "../install/windows"
 
 rem win32-md-shared
-cmake -S ../src -B ../build/windows/win32-md-shared -G "Visual Studio 16 2019" -A win32 ^
-    -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" -DBUILD_SHARED_LIBS=ON
-cmake --build ../build/windows/win32-md-shared --clean-first --config release --target ALL_BUILD
+call :build win32-md-shared win32 ON DLL
 
 rem win32-md-static
-cmake -S ../src -B ../build/windows/win32-md-static -G "Visual Studio 16 2019" -A win32 ^
-    -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=ON
-cmake --build ../build/windows/win32-md-static --clean-first --config release --target ALL_BUILD
+call :build win32-md-static win32 OFF DLL
 
 rem win32-mt-shared
-cmake -S ../src -B ../build/windows/win32-mt-shared -G "Visual Studio 16 2019" -A win32 ^
-    -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>" -DBUILD_SHARED_LIBS=ON
-cmake --build ../build/windows/win32-mt-shared --clean-first --config release --target ALL_BUILD
+call :build win32-mt-shared win32 ON
 
 rem win32-mt-static
-cmake -S ../src -B ../build/windows/win32-mt-static -G "Visual Studio 16 2019" -A win32 ^
-    -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>" -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=ON
-cmake --build ../build/windows/win32-mt-static --clean-first --config release --target ALL_BUILD
+call :build win32-mt-static win32 OFF
 
 rem x64-md-shared
-cmake -S ../src -B ../build/windows/x64-md-shared -G "Visual Studio 16 2019" -A x64 ^
-    -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" -DBUILD_SHARED_LIBS=ON
-cmake --build ../build/windows/x64-md-shared --clean-first --config release --target ALL_BUILD
+call :build x64-md-shared x64 ON  DLL
 
 rem x64-md-static
-cmake -S ../src -B ../build/windows/x64-md-static -G "Visual Studio 16 2019" -A x64 ^
-    -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=ON
-cmake --build ../build/windows/x64-md-static --clean-first --config release --target ALL_BUILD
+call :build x64-md-static x64 OFF DLL
 
 rem x64-mt-shared
-cmake -S ../src -B ../build/windows/x64-mt-shared -G "Visual Studio 16 2019" -A x64 ^
-    -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>" -DBUILD_SHARED_LIBS=ON
-cmake --build ../build/windows/x64-mt-shared --clean-first --config release --target ALL_BUILD
+call :build x64-mt-shared x64 ON
 
 rem x64-mt-static
-cmake -S ../src -B ../build/windows/x64-mt-static -G "Visual Studio 16 2019" -A x64 ^
-    -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>" -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=ON
-cmake --build ../build/windows/x64-mt-static --clean-first --config release --target ALL_BUILD
+call :build x64-mt-static x64 OFF
 
-pause
+goto EOF
+
+rem params: type(win32-md-shared) platform(win32) build_shared_libs(ON) runtimelibrary(DLL)
+:build
+cmake -S ../src -B ../build/windows/%1 -G "Visual Studio 16 2019" -A %2 ^
+    -DCMAKE_POLICY_DEFAULT_CMP0091=NEW -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>%4" -DBUILD_SHARED_LIBS=%3
+cmake --build ../build/windows/%1 --clean-first --config release --target ALL_BUILD
+cmake --install ../build/windows/%1 --config release --prefix ../install/windows/%1
+
+:EOF
