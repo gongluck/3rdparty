@@ -61,3 +61,6 @@
 [submodule "usrsctp/src"]
 	path = usrsctp/src
 	url = https://github.com/sctplab/usrsctp
+[submodule "ios-cmake"]
+	path = ios-cmake
+	url = https://github.com/leetal/ios-cmake.git
