@@ -1,46 +1,59 @@
-del /f /s /q "..\build\windows\*.*"
-rd  /s /q "..\build\windows"
+del /f /s /q "../build/windows/*.*"
+rd  /s /q "../build/windows"
+del /f /s /q "../install/windows/*.*"
+rd  /s /q "../install/windows"
 
-rem Êõ¥Êñ∞Â≠êÊ®°Âùó
+rem ∏¸–¬◊”ƒ£øÈ
 cd ../src && git submodule update --init && cd ../script
 
-rem Â¶ÇÊûú‰ΩøÁî®openssl
-rem ‰ªéhttp://slproweb.com/products/Win32OpenSSL.html‰∏ãËΩΩÂÆâË£Öopenssl(Èùûlight)
-rem Âπ∂ËÆæÁΩÆ-DENABLE_OPENSSL=ONÂíå-DOPENSSL_ROOT_DIR=opensslË∑ØÂæÑ
+rem »Áπ˚ π”√openssl
+rem ¥”http://slproweb.com/products/Win32OpenSSL.htmlœ¬‘ÿ∞≤◊∞openssl(∑«light)
+rem ≤¢…Ë÷√-DENABLE_OPENSSL=ON∫Õ-DOPENSSL_ROOT_DIR=openssl¬∑æ∂
 
-rem Â¶ÇÊûú‰ΩøÁî®webrtc
-rem ËÆæÁΩÆ-DENABLE_WEBRTC=ON
-rem ‚ûïÊåâ‰∏äÈù¢ËØ¥ÊòéÂêØÁî®openssl
-rem ‚ûïËÆæÁΩÆsrtpÂ∫ìË∑ØÂæÑ
+rem »Áπ˚ π”√webrtc
+rem …Ë÷√-DENABLE_WEBRTC=ON
+rem ?∞¥…œ√ÊÀµ√˜∆Ù”√openssl
+rem ?…Ë÷√srtpø‚¬∑æ∂
 
-set pathprefix=../build/windows
+set NULL=
 
-rem win32
-set buildtype=Release
-set platform=win32
-set buildpath=%pathprefix%/%platform%
-set opensslparams=-DENABLE_OPENSSL=ON -DOPENSSL_ROOT_DIR=C:/OpenSSL-Win32
-set srtparams=-DSRTP_INCLUDE_DIRS=../../libsrtp/include -DSRTP_LIBRARIES=../../libsrtp/lib/windows/win32/srtp2.lib
-set sctparams=-DSCTP_INCLUDE_DIRS=../../usrsctp/include -DSCTP_LIBRARIES=../../usrsctp/lib/windows/win32/usrsctp.lib
-cmake -S ../src -B %buildpath% -G "Visual Studio 16 2019" -A %platform% -DCMAKE_INSTALL_PREFIX=%pathprefix%/../../install/windows/%platform% ^
-%opensslparams% %srtparams% %sctparams% -DENABLE_WEBRTC=ON -DENABLE_CXX_API=ON -DENABLE_API_STATIC_LIB=OFF ^
--DCMAKE_CXX_FLAGS_RELEASE="/MP /MT" -DCMAKE_BUILD_TYPE=%buildtype%
-cmake --build %buildpath% --clean-first --config release --target ALL_BUILD
-cmake --install %buildpath% --prefix %pathprefix%/../../install/windows/%platform% --config release
-xcopy /S /Y /I ..\src\release\windows\%buildtype%\Release\* ..\install\windows\%platform%\lib\
+rem win32-md-shared
+call :build win32-md-shared win32 ON "C:/OpenSSL-Win32" OFF DLL
 
-rem x64
-set buildtype=Release
-set platform=x64
-set buildpath=%pathprefix%/%platform%
-set opensslparams=-DENABLE_OPENSSL=ON -DOPENSSL_ROOT_DIR=C:/OpenSSL-Win64
-set srtparams=-DSRTP_INCLUDE_DIRS=../../libsrtp/include -DSRTP_LIBRARIES=../../libsrtp/lib/windows/x64/srtp2.lib
-set sctparams=-DSCTP_INCLUDE_DIRS=../../usrsctp/include -DSCTP_LIBRARIES=../../usrsctp/lib/windows/x64/usrsctp.lib
-cmake -S ../src -B %buildpath% -G "Visual Studio 16 2019" -A %platform% -DCMAKE_INSTALL_PREFIX=%pathprefix%/../../install/windows/%platform% ^
-%opensslparams% %srtparams% %sctparams% -DENABLE_WEBRTC=ON -DENABLE_CXX_API=ON -DENABLE_API_STATIC_LIB=OFF ^
--DCMAKE_CXX_FLAGS_RELEASE="/MP /MT" -DCMAKE_BUILD_TYPE=%buildtype%
-cmake --build %buildpath% --clean-first --config release --target ALL_BUILD
-cmake --install %buildpath% --prefix %pathprefix%/../../install/windows/%platform% --config release
-xcopy /S /Y /I ..\src\release\windows\%buildtype%\Release\* ..\install\windows\%platform%\lib\
+rem win32-md-static
+call :build win32-md-static win32 OFF "C:/OpenSSL-Win32" ON DLL
 
-pause
+rem win32-mt-shared
+call :build win32-mt-shared win32 ON "C:/OpenSSL-Win32" OFF
+
+rem win32-mt-static
+call :build win32-mt-static win32 OFF "C:/OpenSSL-Win32" ON
+
+rem x64-md-shared
+call :build x64-md-shared x64 ON "C:/OpenSSL-Win64" OFF DLL
+
+rem x64-md-static
+call :build x64-md-static x64 OFF "C:/OpenSSL-Win64" ON DLL
+
+rem x64-mt-shared
+call :build x64-mt-shared x64 ON "C:/OpenSSL-Win64" OFF
+
+rem x64-mt-static
+call :build x64-mt-static x64 OFF "C:/OpenSSL-Win64" ON
+
+goto EOF
+
+rem params: type(win32-md-shared) platform(win32) build_shared_libs(ON) openssldir("C:/OpenSSL-Win32") enable_api_static_lib(OFF) runtimelibrary(DLL)
+:build
+cmake -S ../src -B ../build/windows/%1 -G "Visual Studio 16 2019" -A %2 ^
+    -DCMAKE_POLICY_DEFAULT_CMP0091=NEW -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>%6" -DBUILD_SHARED_LIBS=%3 ^
+    -DCMAKE_INSTALL_PREFIX=../install/windows/%1 ^
+    -DENABLE_OPENSSL=ON -DOPENSSL_ROOT_DIR=%4 ^
+    -DSRTP_INCLUDE_DIRS=../../libsrtp/include -DSRTP_LIBRARIES=../../libsrtp/lib/windows/%2/srtp2.lib ^
+    -DSCTP_INCLUDE_DIRS=../../usrsctp/include -DSCTP_LIBRARIES=../../usrsctp/lib/windows/%2/usrsctp.lib ^
+    -DENABLE_WEBRTC=ON -DENABLE_CXX_API=ON -DENABLE_API_STATIC_LIB=%5 ^
+    -DCMAKE_CXX_FLAGS_RELEASE="/MP" -DCMAKE_BUILD_TYPE=Release
+cmake --build ../build/windows/%1 --clean-first --config release --target ALL_BUILD
+cmake --install ../build/windows/%1 --config release --prefix ../install/windows/%1
+
+:EOF
