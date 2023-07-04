@@ -31,7 +31,7 @@ goto EOF
 
 rem params: type(win32-md-shared) platform(win32) build_shared_libs(ON) runtimelibrary(DLL)
 :build
-cmake -S ../src -B ../build/windows/%1 -G "Visual Studio 16 2019" -A %2 ^
+cmake -S ../src -B ../build/windows/%1 -G "Visual Studio 16 2019" -A %2 -DCMAKE_INSTALL_PREFIX=../install/windows/%1 ^
     -DCMAKE_POLICY_DEFAULT_CMP0091=NEW -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreaded$<$<CONFIG:Debug>:Debug>%4" -DBUILD_SHARED_LIBS=%3
 cmake --build ../build/windows/%1 --clean-first --config release --target ALL_BUILD
 cmake --install ../build/windows/%1 --config release --prefix ../install/windows/%1
