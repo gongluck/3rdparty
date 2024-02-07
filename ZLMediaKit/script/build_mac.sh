@@ -6,6 +6,9 @@ OPENSSLPATH="$PWD/../../openssl/install/mac"
 SRTPPATH="$PWD/../../libsrtp/install/mac"
 SCTPPATH="$PWD/../../usrsctp/install/mac"
 
+rm -r $INSTALLPATH
+rm -r $BUILDPATH
+
 cd ../src
 
 git submodule update --init
