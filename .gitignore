@@ -20,3 +20,4 @@ ZLMediaKit/bin/windows/*/*.exe
 ZLMediaKit/bin/windows/*/*.ini
 ZLMediaKit/bin/windows/*/*.pem
 webrtc/windows/
+ZLMediaKit-bak/

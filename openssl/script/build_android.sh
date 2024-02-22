@@ -1,36 +1,22 @@
 #!/bin/sh
 
-export ANDROID_NDK_ROOT=/mnt/e/code/android/ndk/android-ndk-r21d-linux
+export ANDROID_NDK_ROOT=/mnt/e/code/android-ndk-r21-linux
 PATH=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
 
+# android-arm android-arm64 android-x86 android-x86_64
+platform=android-arm
 abi=22
+
+BUILDPATH="$PWD/../build/android/$platform"
+INSTALLPATH="$PWD/../install/android/$platform"
 
 cd ../src
 
-# android-arm
-make clean
-platform=android-arm
-./Configure $platform -D__ANDROID_API__=$abi --prefix=$PWD/../install/$platform
-make -j 8
-make install
+rm -r $INSTALLPATH
+rm -r $BUILDPATH
 
-# android-arm64
 make clean
-platform=android-arm64
-./Configure $platform -D__ANDROID_API__=$abi --prefix=$PWD/../install/$platform
-make -j 8
-make install
 
-# android-x86
-make clean
-platform=android-x86
-./Configure $platform -D__ANDROID_API__=$abi --prefix=$PWD/../install/$platform
-make -j 8
-make install
-
-# android-x86_64
-make clean
-platform=android-x86_64
-./Configure $platform -D__ANDROID_API__=$abi --prefix=$PWD/../install/$platform
+./Configure $platform -D__ANDROID_API__=$abi --prefix=$INSTALLPATH
 make -j 8
 make install
