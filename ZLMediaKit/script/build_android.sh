@@ -5,10 +5,12 @@ export ANDROID_NDK_ROOT=/mnt/e/code/android-ndk-r21-linux
 platform=android-22
 # armeabi-v7a arm64-v8a x86 x86_64
 abi=armeabi-v7a
+# android-arm android-arm64 android-x86 android-x86_64
+sslplatform=android-arm
 
 BUILDPATH="$PWD/../build/android/$platform/$abi"
 INSTALLPATH="$PWD/../install/android/$platform/$abi"
-OPENSSLPATH="$PWD/../../openssl/install/android/android-arm"
+OPENSSLPATH="$PWD/../../openssl/install/android/$sslplatform"
 SRTPPATH="$PWD/../../libsrtp/install/android/$platform/$abi"
 SCTPPATH="$PWD/../../usrsctp/install/android/$platform/$abi"
 
